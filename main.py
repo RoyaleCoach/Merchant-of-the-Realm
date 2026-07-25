@@ -1,74 +1,52 @@
 """Medieval Market Tycoon — Entry point."""
 
-import typer
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-
-from src.core.config import DEFAULT_STARTING_GOLD
-from src.core.save_manager import ensure_save_dir, list_saves
-
-app = typer.Typer(
-    no_args_is_help=True,
-    add_completion=False,
-    help="🏰 Medieval Market Tycoon — Build your trading empire!",
-)
-console = Console()
+from src.core.game_loop import create_new_game, run_game_loop
+from src.core.save_manager import list_saves
+from src.ui.renderer import show_banner, show_main_menu, show_save_list, show_goodbye, console
 
 
-def show_banner():
-    """Display the game banner."""
-    banner = """
-[bold yellow]⚔️  MEDIEVAL MARKET TYCOON  ⚔️[/bold yellow]
-[dim]Build your trading empire from scratch[/dim]
-    """
-    console.print(Panel(banner, border_style="yellow"))
-
-
-@app.command()
-def play():
-    """Start a new game."""
+def main():
+    """Main entry point with menu loop."""
     show_banner()
-    console.print("[green]Welcome, merchant![/green] Your adventure begins...")
-    console.print(f"Starting gold: [yellow]{DEFAULT_STARTING_GOLD}[/yellow]")
-    console.print("[dim]Phase 0 — Core foundation ready.[/dim]")
 
+    while True:
+        show_main_menu()
+        console.print()
+        choice = console.input("[cyan]Choose an option: [/cyan]").strip()
 
-@app.command()
-def load(slot: str = typer.Argument(..., help="Save slot name")):
-    """Load a saved game."""
-    show_banner()
-    from src.core.save_manager import load_game
-    data = load_game(slot)
-    if data:
-        console.print(f"[green]Loaded save '{slot}'[/green]")
-    else:
-        console.print(f"[red]Save '{slot}' not found.[/red]")
+        match choice:
+            case "1":
+                state = create_new_game()
+                run_game_loop(state)
 
+            case "2":
+                saves = list_saves()
+                show_save_list(saves)
+                if saves:
+                    slot = console.input("\n[cyan]Slot to load (or Enter to cancel): [/cyan]").strip()
+                    if slot:
+                        from src.core.game_state import GameState
+                        from src.core.save_manager import load_game
+                        data = load_game(slot)
+                        if data:
+                            state = GameState.from_dict(data)
+                            console.print(f"[green]Loaded '{slot}'.[/green]")
+                            run_game_loop(state)
+                        else:
+                            console.print(f"[red]Save '{slot}' not found.[/red]")
 
-@app.command()
-def saves():
-    """List all saved games."""
-    ensure_save_dir()
-    save_list = list_saves()
-    if not save_list:
-        console.print("[dim]No saves found. Start a new game with 'play'![/dim]")
-        return
-    table = Table(title="Saved Games", border_style="yellow")
-    table.add_column("Slot", style="cyan")
-    table.add_column("Name", style="green")
-    table.add_column("Date", style="dim")
-    table.add_column("Gold", justify="right", style="yellow")
-    for s in save_list:
-        table.add_row(s["slot"], s["name"], s["date"], str(s["gold"]))
-    console.print(table)
+            case "3":
+                show_goodbye()
+                break
 
+            case "":
+                continue
 
-@app.command()
-def version():
-    """Show game version."""
-    console.print("[bold]Medieval Market Tycoon[/bold] — Phase 0 (Foundation)")
+            case _:
+                console.print("[red]Invalid option. Choose 1, 2, or 3.[/red]")
+
+        console.print()
 
 
 if __name__ == "__main__":
-    app()
+    main()
