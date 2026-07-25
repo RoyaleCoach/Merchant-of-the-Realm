@@ -16,6 +16,7 @@ class GameState:
     kingdom_name: str = ""
     town_name: str = ""
     population: int = 0
+    weather: str = "Sunny"
 
     # Time
     day: int = 1
@@ -27,6 +28,11 @@ class GameState:
 
     # Player
     player_name: str = ""
+
+    # World entities (stored as dicts for JSON serialization)
+    market: list[dict] = field(default_factory=list)
+    npcs: list[dict] = field(default_factory=list)
+    buildings: list[dict] = field(default_factory=list)
 
     # Metadata
     last_played: str = ""

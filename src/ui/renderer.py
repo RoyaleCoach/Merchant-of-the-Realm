@@ -39,7 +39,7 @@ def show_game_header(state: GameState):
     header.add_column("Right", style="yellow", justify="right")
     header.add_row(
         f"🏰 {state.town_name}, {state.kingdom_name}",
-        f"💰 {state.gold}g  📅 {state.date_string}  👥 {state.population}",
+        f"💰 {state.gold}g  📅 {state.date_string}  👥 {state.population}  🌤️ {state.weather}",
     )
     console.print(header)
 
@@ -62,7 +62,10 @@ def show_help():
     table.add_column("Command", style="cyan", width=16)
     table.add_column("Description")
     table.add_row("next", "Advance to the next day")
-    table.add_row("status", "Show current game status")
+    table.add_row("status", "Show kingdom status")
+    table.add_row("market", "View market prices")
+    table.add_row("npcs", "List town NPCs")
+    table.add_row("buildings", "List town buildings")
     table.add_row("save [slot]", "Save the game")
     table.add_row("load [slot]", "Load a saved game")
     table.add_row("quit", "Return to main menu")
@@ -71,16 +74,124 @@ def show_help():
 
 
 def show_status(state: GameState):
-    """Display detailed game status."""
+    """Display detailed kingdom status."""
     table = Table(title="[bold]Kingdom Status[/bold]", border_style="yellow")
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="green")
     table.add_row("Kingdom", state.kingdom_name)
     table.add_row("Town", state.town_name)
     table.add_row("Population", str(state.population))
+    table.add_row("Weather", state.weather)
     table.add_row("Date", state.date_string)
     table.add_row("Gold", f"{state.gold}g")
     table.add_row("Player", state.player_name)
+    table.add_row("Market Items", str(len(state.market)))
+    table.add_row("NPCs", str(len(state.npcs)))
+    table.add_row("Buildings", str(len(state.buildings)))
+    console.print(table)
+
+
+def show_world_intro(state: GameState, world):
+    """Display the new game world introduction."""
+    console.print()
+    console.print(f"[green]Welcome, {state.player_name}![/green]")
+    console.print(
+        f"You arrive in [yellow]{state.town_name}[/yellow], "
+        f"a settlement of [yellow]{state.population}[/yellow] souls "
+        f"in the kingdom of [yellow]{state.kingdom_name}[/yellow]."
+    )
+    console.print(f"The weather is [yellow]{state.weather}[/yellow]. Your treasury: [yellow]{state.gold} gold[/yellow].")
+    console.print()
+
+    # Show starting buildings
+    if world.buildings:
+        bldg_table = Table(show_header=False, box=None, padding=(0, 1))
+        bldg_table.add_column("Icon", width=3)
+        bldg_table.add_column("Building")
+        for b in world.buildings:
+            bldg_table.add_row("🏗️", f"{b.name} (Level {b.level})")
+        console.print(Panel(bldg_table, title="[bold]Starting Buildings[/bold]", border_style="dim"))
+
+    # Show a few NPCs
+    if world.npcs:
+        npc_names = ", ".join(n.name for n in world.npcs[:5])
+        extra = f" and {len(world.npcs) - 5} more" if len(world.npcs) > 5 else ""
+        console.print(f"[dim]Notable figures: {npc_names}{extra}[/dim]")
+
+    console.print("[dim]Type 'help' for commands, 'next' to advance time.[/dim]")
+    console.print()
+
+
+def show_market(state: GameState):
+    """Display current market prices."""
+    if not state.market:
+        console.print("[dim]No market items available.[/dim]")
+        return
+
+    table = Table(title="[bold]Market Prices[/bold]", border_style="yellow")
+    table.add_column("Item", style="cyan")
+    table.add_column("Category", style="dim")
+    table.add_column("Price", justify="right", style="yellow")
+    table.add_column("Supply", justify="right", style="green")
+    table.add_column("Demand", justify="right", style="red")
+    table.add_column("Trend", justify="center", width=8)
+
+    for m in state.market:
+        if m["supply"] > m["demand"]:
+            trend = "↓"
+            trend_style = "red"
+        elif m["demand"] > m["supply"]:
+            trend = "↑"
+            trend_style = "green"
+        else:
+            trend = "─"
+            trend_style = "dim"
+
+        table.add_row(
+            m["name"],
+            m.get("category", "general").capitalize(),
+            f"{m['current_price']}g",
+            str(m["supply"]),
+            str(m["demand"]),
+            f"[{trend_style}]{trend}[/{trend_style}]",
+        )
+
+    console.print(table)
+
+
+def show_npcs(state: GameState):
+    """Display town NPCs."""
+    if not state.npcs:
+        console.print("[dim]No NPCs in town.[/dim]")
+        return
+
+    table = Table(title="[bold]Town NPCs[/bold]", border_style="yellow")
+    table.add_column("Name", style="cyan")
+    table.add_column("Profession", style="green")
+    table.add_column("Gold", justify="right", style="yellow")
+    table.add_column("Mood", justify="center")
+
+    for n in state.npcs:
+        mood_icon = {"Happy": "😊", "Content": "🙂", "Neutral": "😐", "Worried": "😟", "Angry": "😠"}.get(n["mood"], "•")
+        table.add_row(n["name"], n["profession"], f"{n['gold']}g", f"{mood_icon} {n['mood']}")
+
+    console.print(table)
+
+
+def show_buildings(state: GameState):
+    """Display town buildings."""
+    if not state.buildings:
+        console.print("[dim]No buildings in town.[/dim]")
+        return
+
+    table = Table(title="[bold]Town Buildings[/bold]", border_style="yellow")
+    table.add_column("Building", style="cyan")
+    table.add_column("Level", justify="center", style="green")
+    table.add_column("Workers", justify="center", style="yellow")
+
+    for b in state.buildings:
+        table.add_row(b["name"], str(b["level"]), f"{b['workers']}/{b['max_workers']}")
+
     console.print(table)
 
 

@@ -1,0 +1,21 @@
+{
+  "first_names": [
+    "Aldric", "Beatrix", "Cedric", "Dagna", "Edmund", "Fiona",
+    "Gareth", "Helena", "Ivan", "Joanna", "Karl", "Lydia",
+    "Magnus", "Nora", "Osric", "Petra", "Quentin", "Rowena",
+    "Sigrid", "Theron", "Ulric", "Vivian", "Willem", "Ysabel"
+  ],
+  "professions": [
+    "Farmer", "Miner", "Merchant", "Hunter", "Blacksmith",
+    "Carpenter", "Fisherman", "Brewer", "Tanner", "Weaver"
+  ],
+  "moods": ["Happy", "Content", "Neutral", "Worried", "Angry"],
+  "kingdom_names": [
+    "Ashvale", "Eldoria", "Northmarch", "Westfold", "Ironhold",
+    "Rivermoor", "Stoneford", "Goldcrest", "Shadowfen", "Brightwater"
+  ],
+  "town_names": [
+    "Millhaven", "Oakridge", "Thornfield", "Ashwick", "Bramblewood",
+    "Crestfall", "Dunmore", "Foxglove", "Greyhollow", "Kettlebrook"
+  ]
+}

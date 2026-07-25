@@ -1,15 +1,16 @@
 """Game loop — the main interactive session."""
 
 from src.core.command_parser import parse
-from src.core.config import DEFAULT_STARTING_GOLD, DEFAULT_TOWN_POPULATION
 from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.ui.renderer import (
     show_hud, show_messages, show_help, show_status,
-    show_prompt, show_save_list, console,
+    show_prompt, show_save_list, show_world_intro,
+    show_market, show_npcs, show_buildings, console,
 )
+from src.world.generator import generate_world
 
 log = get_logger(__name__)
 
@@ -18,23 +19,29 @@ def create_new_game() -> GameState:
     """Set up a new game world."""
     console.print()
     player_name = console.input("[cyan]Your name, merchant? [/cyan]").strip() or "Merchant"
-    town_name = console.input("[cyan]Name your town? [/cyan]").strip() or "Ashvale"
-    kingdom_name = console.input("[cyan]Name the kingdom? [/cyan]").strip() or "Eldoria"
+    town_name = console.input("[cyan]Name your town (or Enter for random)? [/cyan]").strip() or None
+    kingdom_name = console.input("[cyan]Name the kingdom (or Enter for random)? [/cyan]").strip() or None
 
-    state = GameState(
-        name=town_name,
-        kingdom_name=kingdom_name,
-        town_name=town_name,
-        population=DEFAULT_TOWN_POPULATION,
-        gold=DEFAULT_STARTING_GOLD,
+    world = generate_world(
         player_name=player_name,
+        town_name=town_name,
+        kingdom_name=kingdom_name,
     )
 
-    console.print(f"\n[green]Welcome, {player_name}![/green]")
-    console.print(f"You arrive in [yellow]{town_name}[/yellow], a small settlement in the kingdom of [yellow]{kingdom_name}[/yellow].")
-    console.print(f"Your starting treasury: [yellow]{state.gold} gold[/yellow]. Your town has [yellow]{state.population}[/yellow] souls.")
-    console.print("[dim]Type 'help' for commands, 'next' to advance time.[/dim]\n")
+    state = GameState(
+        name=world.town_name,
+        kingdom_name=world.kingdom_name,
+        town_name=world.town_name,
+        population=world.population,
+        gold=world.gold,
+        weather=world.weather,
+        player_name=player_name,
+        market=[m.__dict__ for m in world.market],
+        npcs=[n.__dict__ for n in world.npcs],
+        buildings=[b.__dict__ for b in world.buildings],
+    )
 
+    show_world_intro(state, world)
     return state
 
 
@@ -61,6 +68,15 @@ def run_game_loop(state: GameState):
 
             case "status":
                 show_status(state)
+
+            case "market":
+                show_market(state)
+
+            case "npcs":
+                show_npcs(state)
+
+            case "buildings":
+                show_buildings(state)
 
             case "next":
                 messages = tick(state)

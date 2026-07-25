@@ -1,0 +1,92 @@
+{
+  "bakery": {
+    "name": "Bakery",
+    "cost": 200,
+    "maintenance": 10,
+    "max_workers": 4,
+    "produces": "bread",
+    "requires": "wheat",
+    "description": "Bakes bread from wheat"
+  },
+  "blacksmith": {
+    "name": "Blacksmith",
+    "cost": 350,
+    "maintenance": 15,
+    "max_workers": 3,
+    "produces": "tools",
+    "requires": "iron",
+    "description": "Forges tools from iron"
+  },
+  "farm": {
+    "name": "Farm",
+    "cost": 150,
+    "maintenance": 5,
+    "max_workers": 6,
+    "produces": "wheat",
+    "requires": null,
+    "description": "Grows wheat"
+  },
+  "lumber_mill": {
+    "name": "Lumber Mill",
+    "cost": 180,
+    "maintenance": 8,
+    "max_workers": 4,
+    "produces": "wood",
+    "requires": null,
+    "description": "Cuts timber into wood"
+  },
+  "vineyard": {
+    "name": "Vineyard",
+    "cost": 400,
+    "maintenance": 12,
+    "max_workers": 5,
+    "produces": "wine",
+    "requires": null,
+    "description": "Grapes fermented into wine"
+  },
+  "tavern": {
+    "name": "Tavern",
+    "cost": 300,
+    "maintenance": 12,
+    "max_workers": 3,
+    "produces": "ale",
+    "requires": "wheat",
+    "description": "Brews ale from wheat"
+  },
+  "fishery": {
+    "name": "Fishery",
+    "cost": 120,
+    "maintenance": 6,
+    "max_workers": 4,
+    "produces": "fish",
+    "requires": null,
+    "description": "Catches fish from the river"
+  },
+  "tannery": {
+    "name": "Tannery",
+    "cost": 250,
+    "maintenance": 10,
+    "max_workers": 3,
+    "produces": "leather",
+    "requires": null,
+    "description": "Processes animal hides into leather"
+  },
+  "weaver": {
+    "name": "Weaver",
+    "cost": 200,
+    "maintenance": 8,
+    "max_workers": 3,
+    "produces": "cloth",
+    "requires": null,
+    "description": "Weaves cloth from wool"
+  },
+  "mine": {
+    "name": "Mine",
+    "cost": 500,
+    "maintenance": 20,
+    "max_workers": 8,
+    "produces": "iron",
+    "requires": null,
+    "description": "Extracts iron ore from the earth"
+  }
+}

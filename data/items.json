@@ -1,0 +1,86 @@
+{
+  "bread": {
+    "name": "Bread",
+    "base_price": 12,
+    "category": "food",
+    "production_rate": 50,
+    "consumption_rate": 40
+  },
+  "iron": {
+    "name": "Iron",
+    "base_price": 45,
+    "category": "material",
+    "production_rate": 20,
+    "consumption_rate": 15
+  },
+  "wheat": {
+    "name": "Wheat",
+    "base_price": 8,
+    "category": "food",
+    "production_rate": 60,
+    "consumption_rate": 45
+  },
+  "wood": {
+    "name": "Wood",
+    "base_price": 10,
+    "category": "material",
+    "production_rate": 55,
+    "consumption_rate": 35
+  },
+  "wine": {
+    "name": "Wine",
+    "base_price": 70,
+    "category": "luxury",
+    "production_rate": 15,
+    "consumption_rate": 12
+  },
+  "salt": {
+    "name": "Salt",
+    "base_price": 18,
+    "category": "food",
+    "production_rate": 30,
+    "consumption_rate": 25
+  },
+  "cloth": {
+    "name": "Cloth",
+    "base_price": 35,
+    "category": "material",
+    "production_rate": 25,
+    "consumption_rate": 20
+  },
+  "fish": {
+    "name": "Fish",
+    "base_price": 15,
+    "category": "food",
+    "production_rate": 40,
+    "consumption_rate": 35
+  },
+  "meat": {
+    "name": "Meat",
+    "base_price": 28,
+    "category": "food",
+    "production_rate": 30,
+    "consumption_rate": 28
+  },
+  "ale": {
+    "name": "Ale",
+    "base_price": 22,
+    "category": "food",
+    "production_rate": 35,
+    "consumption_rate": 30
+  },
+  "leather": {
+    "name": "Leather",
+    "base_price": 40,
+    "category": "material",
+    "production_rate": 20,
+    "consumption_rate": 15
+  },
+  "tools": {
+    "name": "Tools",
+    "base_price": 55,
+    "category": "good",
+    "production_rate": 12,
+    "consumption_rate": 10
+  }
+}
