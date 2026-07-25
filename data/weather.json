@@ -1,0 +1,18 @@
+{
+  "types": [
+    { "name": "Sunny", "icon": "☀️", "production_mod": 1.0, "mood_mod": 1 },
+    { "name": "Rain", "icon": "🌧️", "production_mod": 0.9, "mood_mod": -1 },
+    { "name": "Storm", "icon": "⛈️", "production_mod": 0.6, "mood_mod": -2 },
+    { "name": "Snow", "icon": "❄️", "production_mod": 0.5, "mood_mod": -2 },
+    { "name": "Cloudy", "icon": "☁️", "production_mod": 1.0, "mood_mod": 0 },
+    { "name": "Heatwave", "icon": "🔥", "production_mod": 0.7, "mood_mod": -1 },
+    { "name": "Fog", "icon": "🌫️", "production_mod": 0.8, "mood_mod": 0 },
+    { "name": "Windy", "icon": "💨", "production_mod": 0.9, "mood_mod": 0 }
+  ],
+  "season_weights": {
+    "Spring": { "Sunny": 3, "Rain": 3, "Cloudy": 2, "Windy": 2, "Storm": 1, "Fog": 1, "Snow": 0, "Heatwave": 0 },
+    "Summer": { "Sunny": 4, "Heatwave": 2, "Cloudy": 2, "Rain": 1, "Storm": 1, "Windy": 1, "Fog": 0, "Snow": 0 },
+    "Autumn": { "Rain": 3, "Cloudy": 3, "Windy": 2, "Fog": 2, "Sunny": 2, "Storm": 1, "Snow": 0, "Heatwave": 0 },
+    "Winter": { "Snow": 4, "Cloudy": 3, "Fog": 2, "Windy": 2, "Rain": 1, "Sunny": 1, "Storm": 0, "Heatwave": 0 }
+  }
+}

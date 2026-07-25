@@ -39,7 +39,7 @@ def show_game_header(state: GameState):
     header.add_column("Right", style="yellow", justify="right")
     header.add_row(
         f"🏰 {state.town_name}, {state.kingdom_name}",
-        f"💰 {state.gold}g  📅 {state.date_string}  👥 {state.population}  🌤️ {state.weather}",
+        f"💰 {state.gold}g  {state.short_date}  👥 {state.population}  {state.weather}",
     )
     console.print(header)
 
@@ -83,6 +83,7 @@ def show_status(state: GameState):
     table.add_row("Population", str(state.population))
     table.add_row("Weather", state.weather)
     table.add_row("Date", state.date_string)
+    table.add_row("Day Total", f"{state.total_days} days elapsed")
     table.add_row("Gold", f"{state.gold}g")
     table.add_row("Player", state.player_name)
     table.add_row("Market Items", str(len(state.market)))

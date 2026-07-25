@@ -1,0 +1,30 @@
+{
+  "daily": [
+    { "text": "A traveling merchant passes through town, bringing rare goods.", "chance": 0.05, "effect": { "gold": 0, "mood": 1 } },
+    { "text": "Children play in the streets. The town feels lively.", "chance": 0.08, "effect": { "gold": 0, "mood": 1 } },
+    { "text": "A minor dispute breaks out at the market.", "chance": 0.06, "effect": { "gold": 0, "mood": -1 } },
+    { "text": "A farmer's cart breaks down, delaying shipments.", "chance": 0.04, "effect": { "gold": -10, "mood": -1 } },
+    { "text": "A minstrel performs in the square, lifting spirits.", "chance": 0.05, "effect": { "gold": -5, "mood": 2 } },
+    { "text": "Bandits spotted on the trade road. Caravans delayed.", "chance": 0.03, "effect": { "gold": -20, "mood": -2 } },
+    { "text": "A good omen! A double rainbow over the kingdom.", "chance": 0.02, "effect": { "gold": 0, "mood": 2 } },
+    { "text": "Nothing unusual happens today.", "chance": 0.67, "effect": { "gold": 0, "mood": 0 } }
+  ],
+  "seasonal": {
+    "Spring": [
+      { "text": "Spring planting begins! Farms are busy.", "effect": { "gold": 0, "mood": 1 } },
+      { "text": "The annual Spring Fair draws visitors to town.", "effect": { "gold": 50, "mood": 2 } }
+    ],
+    "Summer": [
+      { "text": "Harvest season! The fields are golden.", "effect": { "gold": 30, "mood": 1 } },
+      { "text": "A heatwave wilts the crops.", "effect": { "gold": -15, "mood": -1 } }
+    ],
+    "Autumn": [
+      { "text": "Autumn markets overflow with goods.", "effect": { "gold": 20, "mood": 1 } },
+      { "text": "Early frost threatens the harvest.", "effect": { "gold": -20, "mood": -1 } }
+    ],
+    "Winter": [
+      { "text": "Winter stores are full. The town is prepared.", "effect": { "gold": 0, "mood": 1 } },
+      { "text": "A harsh blizzard isolates the town.", "effect": { "gold": -25, "mood": -2 } }
+    ]
+  }
+}

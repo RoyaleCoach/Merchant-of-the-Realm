@@ -113,6 +113,7 @@ def _generate_market(items: dict) -> list[MarketItem]:
         market.append(MarketItem(
             item_id=item_id,
             name=data["name"],
+            category=data.get("category", "general"),
             base_price=data["base_price"],
             current_price=current,
             supply=supply,
