@@ -1,0 +1,27 @@
+[project]
+name = "merchant-of-the-realm"
+version = "0.1.0"
+description = "Medieval Market Tycoon — CLI simulation game"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{ name = "RoyaleCoach" }]
+license = { text = "MIT" }
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+merchant = "main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
