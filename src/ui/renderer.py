@@ -39,7 +39,7 @@ def show_game_header(state: GameState):
     header.add_column("Right", style="yellow", justify="right")
     header.add_row(
         f"🏰 {state.town_name}, {state.kingdom_name}",
-        f"💰 {state.gold}g  {state.short_date}  👥 {state.population}  {state.weather}",
+        f"💰 {state.gold}g  🎒 {state.inventory_weight}/{state.inventory_capacity}  {state.short_date}  👥 {state.population}  {state.weather}",
     )
     console.print(header)
 
@@ -59,13 +59,19 @@ def show_messages(messages: list[str]):
 def show_help():
     """Display available commands."""
     table = Table(title="[bold]Commands[/bold]", border_style="dim", show_lines=False)
-    table.add_column("Command", style="cyan", width=16)
+    table.add_column("Command", style="cyan", width=20)
     table.add_column("Description")
     table.add_row("next", "Advance to the next day")
     table.add_row("status", "Show kingdom status")
     table.add_row("market", "View market prices")
     table.add_row("npcs", "List town NPCs")
     table.add_row("buildings", "List town buildings")
+    table.add_row("inventory (inv)", "View your inventory")
+    table.add_row("warehouse (wh)", "View warehouse contents")
+    table.add_row("buy <item> <qty>", "Buy items from the market")
+    table.add_row("sell <item> <qty>", "Sell items to the market (90% value)")
+    table.add_row("deposit <item> <qty>", "Move items from inventory to warehouse")
+    table.add_row("withdraw <item> <qty>", "Move items from warehouse to inventory")
     table.add_row("save [slot]", "Save the game")
     table.add_row("load [slot]", "Load a saved game")
     table.add_row("quit", "Return to main menu")
@@ -119,7 +125,7 @@ def show_world_intro(state: GameState, world):
         extra = f" and {len(world.npcs) - 5} more" if len(world.npcs) > 5 else ""
         console.print(f"[dim]Notable figures: {npc_names}{extra}[/dim]")
 
-    console.print("[dim]Type 'help' for commands, 'next' to advance time.[/dim]")
+    console.print("[dim]Type 'help' for commands, 'next' to advance time, 'buy'/'sell' to trade.[/dim]")
     console.print()
 
 
@@ -194,6 +200,50 @@ def show_buildings(state: GameState):
         table.add_row(b["name"], str(b["level"]), f"{b['workers']}/{b['max_workers']}")
 
     console.print(table)
+
+
+def show_inventory(state: GameState):
+    """Display player inventory."""
+    if not state.inventory:
+        console.print("[dim]Your inventory is empty.[/dim]")
+        return
+
+    table = Table(title="[bold]🎒 Inventory[/bold]", border_style="yellow")
+    table.add_column("Item", style="cyan")
+    table.add_column("Quantity", justify="right", style="green")
+    table.add_column("Weight", justify="right", style="dim")
+
+    for i in sorted(state.inventory, key=lambda x: x["name"]):
+        w = i.get("weight", 1) * i["quantity"]
+        table.add_row(i["name"], str(i["quantity"]), f"{w}")
+
+    console.print(table)
+    console.print(
+        f"[dim]Weight: {state.inventory_weight}/{state.inventory_capacity} "
+        f"(free: {state.inventory_free_space})[/dim]"
+    )
+
+
+def show_warehouse(state: GameState):
+    """Display warehouse contents."""
+    if not state.warehouse:
+        console.print("[dim]The warehouse is empty.[/dim]")
+        return
+
+    table = Table(title="[bold]🏚️ Warehouse[/bold]", border_style="yellow")
+    table.add_column("Item", style="cyan")
+    table.add_column("Quantity", justify="right", style="green")
+    table.add_column("Weight", justify="right", style="dim")
+
+    for i in sorted(state.warehouse, key=lambda x: x["name"]):
+        w = i.get("weight", 1) * i["quantity"]
+        table.add_row(i["name"], str(i["quantity"]), f"{w}")
+
+    console.print(table)
+    console.print(
+        f"[dim]Weight: {state.warehouse_weight}/{state.warehouse_capacity} "
+        f"(free: {state.warehouse_free_space})[/dim]"
+    )
 
 
 def show_prompt():

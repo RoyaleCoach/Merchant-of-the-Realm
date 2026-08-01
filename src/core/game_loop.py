@@ -5,10 +5,12 @@ from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
+from src.economy.inventory import buy, sell, deposit, withdraw
 from src.ui.renderer import (
     show_hud, show_messages, show_help, show_status,
     show_prompt, show_save_list, show_world_intro,
-    show_market, show_npcs, show_buildings, console,
+    show_market, show_npcs, show_buildings,
+    show_inventory, show_warehouse, console,
 )
 from src.world.generator import generate_world
 
@@ -77,6 +79,60 @@ def run_game_loop(state: GameState):
 
             case "buildings":
                 show_buildings(state)
+
+            case "inventory" | "inv":
+                show_inventory(state)
+
+            case "warehouse" | "wh":
+                show_warehouse(state)
+
+            case "buy":
+                if len(cmd.args) >= 2:
+                    item_id = cmd.args[0]
+                    try:
+                        qty = int(cmd.args[1])
+                    except ValueError:
+                        console.print("[red]Invalid quantity.[/red]")
+                        continue
+                    console.print(buy(state, item_id, qty))
+                else:
+                    console.print("[dim]Usage: buy <item_id> <quantity>[/dim]")
+
+            case "sell":
+                if len(cmd.args) >= 2:
+                    item_id = cmd.args[0]
+                    try:
+                        qty = int(cmd.args[1])
+                    except ValueError:
+                        console.print("[red]Invalid quantity.[/red]")
+                        continue
+                    console.print(sell(state, item_id, qty))
+                else:
+                    console.print("[dim]Usage: sell <item_id> <quantity>[/dim]")
+
+            case "deposit" | "dep":
+                if len(cmd.args) >= 2:
+                    item_id = cmd.args[0]
+                    try:
+                        qty = int(cmd.args[1])
+                    except ValueError:
+                        console.print("[red]Invalid quantity.[/red]")
+                        continue
+                    console.print(deposit(state, item_id, qty))
+                else:
+                    console.print("[dim]Usage: deposit <item_id> <quantity>[/dim]")
+
+            case "withdraw" | "wd":
+                if len(cmd.args) >= 2:
+                    item_id = cmd.args[0]
+                    try:
+                        qty = int(cmd.args[1])
+                    except ValueError:
+                        console.print("[red]Invalid quantity.[/red]")
+                        continue
+                    console.print(withdraw(state, item_id, qty))
+                else:
+                    console.print("[dim]Usage: withdraw <item_id> <quantity>[/dim]")
 
             case "next":
                 messages = tick(state)

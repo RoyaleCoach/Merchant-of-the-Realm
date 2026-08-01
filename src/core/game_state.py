@@ -31,6 +31,14 @@ class GameState:
     # Player
     player_name: str = ""
 
+    # Inventory — items the player carries
+    inventory: list[dict] = field(default_factory=list)
+    inventory_capacity: int = 100  # max weight units
+
+    # Warehouse — items stored in town warehouse
+    warehouse: list[dict] = field(default_factory=list)
+    warehouse_capacity: int = 500  # max weight units
+
     # World entities (stored as dicts for JSON serialization)
     market: list[dict] = field(default_factory=list)
     npcs: list[dict] = field(default_factory=list)
@@ -102,3 +110,39 @@ class GameState:
     def short_date(self) -> str:
         """Short date for HUD display."""
         return f"📅 {self.DAY_NAMES[self.day - 1][:3]}, W{self.week} M{self.month}, {self.season[:3]} Y{self.year}"
+
+    # --- Inventory helpers ---
+
+    @property
+    def inventory_weight(self) -> int:
+        """Total weight of all items in player inventory."""
+        return sum(i.get("weight", 1) * i.get("quantity", 0) for i in self.inventory)
+
+    @property
+    def inventory_free_space(self) -> int:
+        """Remaining weight capacity in player inventory."""
+        return max(0, self.inventory_capacity - self.inventory_weight)
+
+    @property
+    def warehouse_weight(self) -> int:
+        """Total weight of all items in warehouse."""
+        return sum(i.get("weight", 1) * i.get("quantity", 0) for i in self.warehouse)
+
+    @property
+    def warehouse_free_space(self) -> int:
+        """Remaining weight capacity in warehouse."""
+        return max(0, self.warehouse_capacity - self.warehouse_weight)
+
+    def inventory_item(self, item_id: str) -> dict | None:
+        """Find an item in player inventory by ID."""
+        for i in self.inventory:
+            if i["item_id"] == item_id:
+                return i
+        return None
+
+    def warehouse_item(self, item_id: str) -> dict | None:
+        """Find an item in warehouse by ID."""
+        for i in self.warehouse:
+            if i["item_id"] == item_id:
+                return i
+        return None
