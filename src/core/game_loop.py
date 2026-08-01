@@ -7,11 +7,16 @@ from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.economy.inventory import buy, sell, deposit, withdraw
 from src.economy.trading import inspect_item, get_affordability, get_profitability
+from src.economy.buildings import (
+    build, upgrade, demolish,
+    get_constructible_buildings, get_building_info,
+)
 from src.ui.renderer import (
     show_hud, show_messages, show_help, show_status,
     show_prompt, show_save_list, show_world_intro,
     show_market, show_npcs, show_buildings,
-    show_inventory, show_warehouse, show_inspect, console,
+    show_inventory, show_warehouse, show_inspect,
+    show_building_info, show_constructible, console,
 )
 from src.world.generator import generate_world
 
@@ -93,6 +98,36 @@ def run_game_loop(state: GameState):
 
             case "buildings":
                 show_buildings(state)
+
+            case "build":
+                if cmd.args:
+                    console.print(build(state, cmd.args[0]))
+                else:
+                    show_constructible(state)
+
+            case "upgrade":
+                if cmd.args:
+                    console.print(upgrade(state, cmd.args[0]))
+                else:
+                    console.print("[dim]Usage: upgrade <building_id>[/dim]")
+
+            case "demolish":
+                if cmd.args:
+                    console.print(demolish(state, cmd.args[0]))
+                else:
+                    console.print("[dim]Usage: demolish <building_id>[/dim]")
+
+            case "building":
+                if cmd.args:
+                    for b in state.buildings:
+                        if b["building_id"] == cmd.args[0]:
+                            info = get_building_info(b)
+                            show_building_info(info)
+                            break
+                    else:
+                        console.print(f"[red]Building '{cmd.args[0]}' not found.[/red]")
+                else:
+                    console.print("[dim]Usage: building <building_id>[/dim]")
 
             case "inventory" | "inv":
                 show_inventory(state)

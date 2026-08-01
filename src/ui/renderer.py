@@ -67,6 +67,10 @@ def show_help():
     table.add_row("inspect <item>", "Detailed item analysis (price, supply, demand)")
     table.add_row("npcs", "List town NPCs")
     table.add_row("buildings", "List town buildings")
+    table.add_row("building <id>", "View building details")
+    table.add_row("build [id]", "Construct a building (or list available)")
+    table.add_row("upgrade <id>", "Upgrade a building level")
+    table.add_row("demolish <id>", "Demolish a building (50% refund)")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -289,6 +293,75 @@ def show_buildings(state: GameState):
         table.add_row(b["name"], str(b["level"]), f"{b['workers']}/{b['max_workers']}")
 
     console.print(table)
+
+
+def show_building_info(info: dict):
+    """Display detailed building information."""
+    if not info:
+        console.print("[red]Building not found.[/red]")
+        return
+
+    # Header with level
+    level_str = f"Level {info['level']}/{info['max_level']}"
+    console.print(Panel(
+        f"[bold]{info['name']}[/bold] — {level_str}\n"
+        f"[dim]{info['description']}[/dim]",
+        title="[bold]🏗️ Building Info[/bold]",
+        border_style="yellow",
+    ))
+
+    # Stats table
+    stats = Table(show_header=False, box=None, padding=(0, 2))
+    stats.add_column("Label", style="cyan", width=16)
+    stats.add_column("Value")
+    stats.add_row("Workers", f"{info['workers']}/{info['max_workers']}")
+    stats.add_row("Efficiency", f"{info['efficiency']*100:.0f}%")
+    stats.add_row("Maintenance", f"{info['maintenance']}g/day")
+    if info["produces"]:
+        stats.add_row("Produces", info["produces"].capitalize())
+    if info["requires"]:
+        stats.add_row("Requires", info["requires"].capitalize())
+    console.print(Panel(stats, title="[bold]Stats[/bold]", border_style="dim"))
+
+    # Actions
+    actions = Table(show_header=False, box=None, padding=(0, 2))
+    actions.add_column("Action", style="cyan", width=16)
+    actions.add_column("Cost")
+    if info["level"] < info["max_level"]:
+        actions.add_row("Upgrade", f"{info['upgrade_cost']}g")
+    else:
+        actions.add_row("Upgrade", "[dim]Max level reached[/dim]")
+    actions.add_row("Demolish", f"[green]+{info['demolish_refund']}g refund[/green]")
+    console.print(Panel(actions, title="[bold]Actions[/bold]", border_style="green"))
+
+
+def show_constructible(state: GameState):
+    """Display buildings available to construct."""
+    from src.economy.buildings import get_constructible_buildings
+
+    available = get_constructible_buildings(state)
+    if not available:
+        console.print("[dim]All building types have been constructed.[/dim]")
+        return
+
+    table = Table(title="[bold]🔨 Available Buildings[/bold]", border_style="yellow")
+    table.add_column("ID", style="cyan", width=14)
+    table.add_column("Building")
+    table.add_column("Cost", justify="right", style="yellow")
+    table.add_column("Max Workers", justify="right", style="green")
+    table.add_column("Description", style="dim")
+
+    for b in sorted(available, key=lambda x: x["cost"]):
+        table.add_row(
+            b["building_id"],
+            b["name"],
+            f"{b['cost']}g",
+            str(b["max_workers"]),
+            b.get("description", ""),
+        )
+
+    console.print(table)
+    console.print(f"[dim]Gold: {state.gold}g | Use 'build <building_id>' to construct.[/dim]")
 
 
 def show_inventory(state: GameState):
