@@ -7,6 +7,7 @@ from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
+from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
 from src.systems.workforce import get_workforce_summary, get_workers_at_building, get_total_payroll
 from src.economy.inventory import buy, sell, deposit, withdraw
@@ -22,7 +23,8 @@ from src.ui.renderer import (
     show_inventory, show_warehouse, show_inspect,
     show_building_info, show_constructible,
     show_production_report, show_npc_detail,
-    show_workforce_summary, show_workers, console,
+    show_workforce_summary, show_workers,
+    show_supply_chains, console,
 )
 from src.world.generator import generate_world
 
@@ -199,6 +201,12 @@ def run_game_loop(state: GameState):
                 weather_mod = get_weather_mod(state)
                 report = generate_production_report(state, weather_mod)
                 show_production_report(report, state.buildings, weather_mod)
+
+            case "supply":
+                weather_mod = get_weather_mod(state)
+                chains = analyze_supply_chain(state, weather_mod)
+                summary = get_chain_summary(state, weather_mod)
+                show_supply_chains(chains, summary)
 
             case "inventory" | "inv":
                 show_inventory(state)

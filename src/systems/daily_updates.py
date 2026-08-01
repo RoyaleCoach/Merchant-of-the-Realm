@@ -48,46 +48,42 @@ def update_economy(state: GameState, weather_mod: float) -> list[str]:
 
 def update_production(state: GameState, weather_mod: float) -> list[str]:
     """
-    Buildings produce goods and consume resources.
-    Returns messages about production output.
+    Process goods flow through supply chains.
+    Producers create goods, consumers pull inputs.
+    Returns messages about production and shortages.
     """
-    messages = []
-    buildings_data = load_data("buildings.json")
+    from src.systems.supply_chain import process_goods_flow
 
+    messages = []
+
+    # Process the actual flow of goods
+    flow_msgs = process_goods_flow(state, weather_mod)
+    messages.extend(flow_msgs)
+
+    # Add production output messages for active buildings
+    buildings_data = load_data("buildings.json")
     for b in state.buildings:
         if b["workers"] <= 0:
             continue
 
         bdata = buildings_data.get(b["building_id"], {})
         produces = bdata.get("produces")
-        requires = bdata.get("requires")
-
         if not produces:
             continue
 
-        # Production scales with workers, skill, and weather
-        worker_ratio = b["workers"] / max(b["max_workers"], 1)
-        # Get worker productivity modifier (skill, morale, health)
         from src.systems.workforce import get_worker_modifier
         worker_mod = get_worker_modifier(state, b["building_id"])
+        worker_ratio = b["workers"] / max(b["max_workers"], 1)
         output = int(10 * worker_ratio * weather_mod * b["level"] * worker_mod)
 
-        # Add produced goods to market supply
-        for item in state.market:
-            if item["item_id"] == produces:
-                item["supply"] += output
-                messages.append(f"  {b['name']} produced {output} {item['name']}")
-                break
-
-        # Consume required inputs from market
-        if requires:
-            for item in state.market:
-                if item["item_id"] == requires:
-                    consumed = min(output, item["supply"])
-                    item["supply"] = max(0, item["supply"] - consumed)
-                    if consumed > 0:
-                        messages.append(f"  {b['name']} consumed {consumed} {item['name']}")
+        if output > 0:
+            # Find market item name
+            item_name = produces.capitalize()
+            for m in state.market:
+                if m["item_id"] == produces:
+                    item_name = m["name"]
                     break
+            messages.append(f"  {b['name']} produced {output} {item_name}")
 
     return messages
 

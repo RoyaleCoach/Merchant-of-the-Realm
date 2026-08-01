@@ -77,6 +77,7 @@ def show_help():
     table.add_row("upgrade <id>", "Upgrade a building level")
     table.add_row("demolish <id>", "Demolish a building (50% refund)")
     table.add_row("production (prod)", "View daily production report")
+    table.add_row("supply", "View supply chain status & bottlenecks")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -614,6 +615,73 @@ def show_workers(workers: list[dict], building_id: str, state: GameState):
         )
 
     console.print(table)
+
+
+def show_supply_chains(chains: list[dict], summary: dict):
+    """Display supply chain analysis."""
+    # Summary header
+    health_summary = (
+        f"[green]{summary['healthy']} healthy[/green] | "
+        f"[yellow]{summary['strained']} strained[/yellow] | "
+        f"[red]{summary['broken']} broken[/red] | "
+        f"[dim]{summary['idle']} idle[/dim]"
+    )
+    console.print(Panel(
+        f"{summary['total_chains']} supply chains — {health_summary}",
+        title="[bold]🔗 Supply Chain Status[/bold]",
+        border_style="yellow",
+    ))
+
+    if summary["bottlenecks"]:
+        bn = ", ".join(summary["bottlenecks"])
+        console.print(f"[red]⚠ Bottlenecks: {bn}[/red]")
+
+    # Each chain
+    for i, chain in enumerate(chains):
+        health = chain["health"]
+        if health == "healthy":
+            health_icon = "[green]✓[/green]"
+        elif health == "strained":
+            health_icon = "[yellow]⚡[/yellow]"
+        elif health == "broken":
+            health_icon = "[red]✗[/red]"
+        else:
+            health_icon = "[dim]○[/dim]"
+
+        # Build chain display
+        chain_rows = []
+        for link in chain["links"]:
+            status = link["status"]
+            if status == "healthy":
+                status_icon = "[green]●[/green]"
+            elif status == "strained":
+                status_icon = "[yellow]●[/yellow]"
+            elif status == "broken":
+                status_icon = "[red]●[/red]"
+            else:
+                status_icon = "[dim]○[/dim]"
+
+            workers_str = f"{link['workers']}/{link['max_workers']}"
+            row = f"{status_icon} {link['name']} ({workers_str}) → {link['output']}x {link['produces_name']}"
+
+            if link.get("requires"):
+                avail = link.get("input_available", 0)
+                need = link.get("input_need", 0)
+                if need > 0:
+                    pct = (avail / need) * 100
+                    row += f" [dim](input: {avail}/{need}, {pct:.0f}%)[/dim]"
+
+            chain_rows.append(row)
+
+        chain_text = "\n".join(chain_rows)
+        if chain["bottleneck"]:
+            chain_text += f"\n[red]  ↳ Bottleneck: {chain['bottleneck']}[/red]"
+
+        console.print(Panel(
+            chain_text,
+            title=f"{health_icon} Chain {i + 1}",
+            border_style="dim",
+        ))
 
 
 def show_goodbye():
