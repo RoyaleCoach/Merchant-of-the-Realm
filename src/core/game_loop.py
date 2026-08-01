@@ -5,6 +5,8 @@ from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
+from src.systems.production import generate_production_report
+from src.systems.daily_updates import get_weather_mod
 from src.economy.inventory import buy, sell, deposit, withdraw
 from src.economy.trading import inspect_item, get_affordability, get_profitability
 from src.economy.buildings import (
@@ -16,7 +18,8 @@ from src.ui.renderer import (
     show_prompt, show_save_list, show_world_intro,
     show_market, show_npcs, show_buildings,
     show_inventory, show_warehouse, show_inspect,
-    show_building_info, show_constructible, console,
+    show_building_info, show_constructible,
+    show_production_report, console,
 )
 from src.world.generator import generate_world
 
@@ -128,6 +131,11 @@ def run_game_loop(state: GameState):
                         console.print(f"[red]Building '{cmd.args[0]}' not found.[/red]")
                 else:
                     console.print("[dim]Usage: building <building_id>[/dim]")
+
+            case "production" | "prod":
+                weather_mod = get_weather_mod(state)
+                report = generate_production_report(state, weather_mod)
+                show_production_report(report, state.buildings, weather_mod)
 
             case "inventory" | "inv":
                 show_inventory(state)

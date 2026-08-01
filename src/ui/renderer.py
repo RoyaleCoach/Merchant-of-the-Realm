@@ -71,6 +71,7 @@ def show_help():
     table.add_row("build [id]", "Construct a building (or list available)")
     table.add_row("upgrade <id>", "Upgrade a building level")
     table.add_row("demolish <id>", "Demolish a building (50% refund)")
+    table.add_row("production (prod)", "View daily production report")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -362,6 +363,84 @@ def show_constructible(state: GameState):
 
     console.print(table)
     console.print(f"[dim]Gold: {state.gold}g | Use 'build <building_id>' to construct.[/dim]")
+
+
+def show_production_report(report: list[dict], buildings: list[dict], weather_mod: float):
+    """Display daily production report."""
+    if not report:
+        console.print("[dim]No buildings are producing anything.[/dim]")
+        return
+
+    # Header
+    if weather_mod < 1.0:
+        console.print(f"[dim]Weather production modifier: {weather_mod*100:.0f}%[/dim]")
+
+    # Group by supply chain
+    chained = [r for r in report if r["is_in_chain"]]
+    standalone = [r for r in report if not r["is_in_chain"]]
+    idle = [b for b in buildings if not any(r["building_id"] == b["building_id"] for r in report)]
+
+    if chained:
+        table = Table(title="[bold]⚙️ Supply Chains[/bold]", border_style="yellow")
+        table.add_column("Chain")
+        table.add_column("Output", justify="right", style="green")
+        table.add_column("Workers", justify="center", style="cyan")
+        table.add_column("Efficiency", justify="right", style="dim")
+
+        shown = set()
+        for r in chained:
+            key = r["building_id"]
+            if key in shown:
+                continue
+            shown.add(key)
+
+            # Build chain display
+            chain_str = r["name"]
+            if r["requires_name"] and r["input_source"]:
+                chain_str = f"{r['input_source']} → {r['name']}"
+
+            eff_pct = f"{r['efficiency']*100:.0f}%"
+            workers_str = f"{r['workers']}/{r['max_workers']}"
+
+            table.add_row(
+                chain_str,
+                f"{r['output']}x {r['produces_name']}",
+                workers_str,
+                eff_pct,
+            )
+
+        console.print(table)
+
+    if standalone:
+        table = Table(title="[bold]🏭 Standalone Production[/bold]", border_style="yellow")
+        table.add_column("Building")
+        table.add_column("Output", justify="right", style="green")
+        table.add_column("Workers", justify="center", style="cyan")
+        table.add_column("Efficiency", justify="right", style="dim")
+
+        for r in standalone:
+            eff_pct = f"{r['efficiency']*100:.0f}%"
+            workers_str = f"{r['workers']}/{r['max_workers']}"
+            table.add_row(
+                r["name"],
+                f"{r['output']}x {r['produces_name']}",
+                workers_str,
+                eff_pct,
+            )
+
+        console.print(table)
+
+    if idle:
+        idle_names = ", ".join(b["name"] for b in idle)
+        console.print(f"[dim]Idle (no workers): {idle_names}[/dim]")
+
+    # Summary
+    total_output = sum(r["output"] for r in report)
+    total_workers = sum(r["workers"] for r in report)
+    console.print(
+        f"[dim]Total: {total_output} items/day | "
+        f"{total_workers} workers employed[/dim]"
+    )
 
 
 def show_inventory(state: GameState):
