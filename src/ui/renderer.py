@@ -64,6 +64,7 @@ def show_help():
     table.add_row("next", "Advance to the next day")
     table.add_row("status", "Show kingdom status")
     table.add_row("market", "View market prices")
+    table.add_row("inspect <item>", "Detailed item analysis (price, supply, demand)")
     table.add_row("npcs", "List town NPCs")
     table.add_row("buildings", "List town buildings")
     table.add_row("inventory (inv)", "View your inventory")
@@ -130,7 +131,7 @@ def show_world_intro(state: GameState, world):
 
 
 def show_market(state: GameState):
-    """Display current market prices."""
+    """Display current market prices with base comparison."""
     if not state.market:
         console.print("[dim]No market items available.[/dim]")
         return
@@ -139,11 +140,18 @@ def show_market(state: GameState):
     table.add_column("Item", style="cyan")
     table.add_column("Category", style="dim")
     table.add_column("Price", justify="right", style="yellow")
+    table.add_column("Base", justify="right", style="dim")
+    table.add_column("Diff", justify="right", width=10)
     table.add_column("Supply", justify="right", style="green")
     table.add_column("Demand", justify="right", style="red")
     table.add_column("Trend", justify="center", width=8)
 
-    for m in state.market:
+    for m in sorted(state.market, key=lambda x: x["name"]):
+        base = m["base_price"]
+        current = m["current_price"]
+        diff = current - base
+        pct = ((current - base) / base) * 100 if base > 0 else 0
+
         if m["supply"] > m["demand"]:
             trend = "↓"
             trend_style = "red"
@@ -154,16 +162,97 @@ def show_market(state: GameState):
             trend = "─"
             trend_style = "dim"
 
+        if diff > 0:
+            diff_str = f"[red]+{diff}g ({pct:+.0f}%)"
+        elif diff < 0:
+            diff_str = f"[green]{diff}g ({pct:+.0f}%)"
+        else:
+            diff_str = "[dim]0g (0%)[/dim]"
+
         table.add_row(
             m["name"],
             m.get("category", "general").capitalize(),
-            f"{m['current_price']}g",
+            f"{current}g",
+            f"{base}g",
+            diff_str,
             str(m["supply"]),
             str(m["demand"]),
             f"[{trend_style}]{trend}[/{trend_style}]",
         )
 
     console.print(table)
+    console.print("[dim]Use 'inspect <item>' for detailed analysis.[/dim]")
+
+
+def show_inspect(item_data: dict | None, affordability: dict | None, profitability: dict | None):
+    """Display detailed inspection of a market item."""
+    if item_data is None:
+        console.print("[red]Item not found on the market.[/red]")
+        return
+
+    # Price panel
+    if item_data["diff"] > 0:
+        diff_style = "red"
+        diff_label = "overpriced"
+    elif item_data["diff"] < 0:
+        diff_style = "green"
+        diff_label = "underpriced"
+    else:
+        diff_style = "dim"
+        diff_label = "at base price"
+
+    price_text = (
+        f"[bold]{item_data['name']}[/bold] — {item_data['category'].capitalize()}\n"
+        f"Current: [yellow]{item_data['current_price']}g[/yellow]  "
+        f"Base: [dim]{item_data['base_price']}g[/dim]\n"
+        f"[{diff_style}]Price is {abs(item_data['pct']):.0f}% {diff_label} ({item_data['diff']:+d}g)[/{diff_style}]"
+    )
+    console.print(Panel(price_text, title="[bold]Price Analysis[/bold]", border_style="yellow"))
+
+    # Supply & Demand panel
+    ratio = item_data["ratio"]
+    if ratio > 1.2:
+        market_label = "[red]Seller's market[/red] (high demand)"
+    elif ratio < 0.8:
+        market_label = "[green]Buyer's market[/green] (high supply)"
+    else:
+        market_label = "[dim]Balanced[/dim]"
+
+    sd_table = Table(show_header=False, box=None, padding=(0, 2))
+    sd_table.add_column("Label", style="cyan", width=14)
+    sd_table.add_column("Value")
+    sd_table.add_row("Supply", str(item_data["supply"]))
+    sd_table.add_row("Demand", str(item_data["demand"]))
+    sd_table.add_row("S/D Ratio", f"{ratio:.2f}")
+    sd_table.add_row("Market", market_label)
+    console.print(Panel(sd_table, title="[bold]Supply & Demand[/bold]", border_style="dim"))
+
+    # Affordability panel
+    if affordability is not None:
+        aff_table = Table(show_header=False, box=None, padding=(0, 2))
+        aff_table.add_column("Label", style="cyan", width=18)
+        aff_table.add_column("Value")
+        aff_table.add_row("Your Gold", f"{affordable_text(affordability)}")
+        console.print(Panel(aff_table, title="[bold]Affordability[/bold]", border_style="green"))
+
+    # Profitability panel
+    if profitability is not None:
+        prof_table = Table(show_header=False, box=None, padding=(0, 2))
+        prof_table.add_column("Label", style="cyan", width=18)
+        prof_table.add_column("Value")
+        prof_table.add_row("Owned", f"{profitability['quantity_owned']}x")
+        prof_table.add_row("Sell Price", f"{profitability['sell_price']}g each")
+        prof_table.add_row("Total Revenue", f"[green]{profitability['total_revenue']}g[/green]")
+        console.print(Panel(prof_table, title="[bold]Sell Profit[/bold]", border_style="red"))
+
+
+def affordable_text(affordability: dict) -> str:
+    """Format affordability info."""
+    return (
+        f"Can afford [yellow]{affordability['max_affordable']}x[/yellow] "
+        f"(gold allows {affordability['max_by_gold']}x, "
+        f"stock: {affordability['in_stock']}x)"
+    )
 
 
 def show_npcs(state: GameState):

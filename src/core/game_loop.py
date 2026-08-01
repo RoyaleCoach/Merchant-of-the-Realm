@@ -6,11 +6,12 @@ from src.core.logger import get_logger
 from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.economy.inventory import buy, sell, deposit, withdraw
+from src.economy.trading import inspect_item, get_affordability, get_profitability
 from src.ui.renderer import (
     show_hud, show_messages, show_help, show_status,
     show_prompt, show_save_list, show_world_intro,
     show_market, show_npcs, show_buildings,
-    show_inventory, show_warehouse, console,
+    show_inventory, show_warehouse, show_inspect, console,
 )
 from src.world.generator import generate_world
 
@@ -73,6 +74,19 @@ def run_game_loop(state: GameState):
 
             case "market":
                 show_market(state)
+
+            case "inspect":
+                if cmd.args:
+                    item_id = cmd.args[0]
+                    item_data = inspect_item(state, item_id)
+                    if item_data:
+                        afford = get_affordability(state, item_id)
+                        profit = get_profitability(state, item_id)
+                        show_inspect(item_data, afford, profit)
+                    else:
+                        console.print(f"[red]Item '{item_id}' not found on the market.[/red]")
+                else:
+                    console.print("[dim]Usage: inspect <item_id>[/dim]")
 
             case "npcs":
                 show_npcs(state)
