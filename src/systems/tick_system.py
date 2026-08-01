@@ -13,6 +13,7 @@ from src.systems.daily_updates import (
     get_weather_mod,
     get_mood_mod,
 )
+from src.systems.workforce import pay_workers, update_worker_stats
 
 log = get_logger(__name__)
 
@@ -57,6 +58,16 @@ def tick(state: GameState) -> list[str]:
 
     # NPC behavior
     update_npcs(state, mood_mod)
+
+    # Worker stat updates (morale, health, experience)
+    update_worker_stats(state)
+
+    # Payroll — pay workers their daily wages
+    amount_paid, payroll_msg = pay_workers(state)
+    if amount_paid > 0:
+        messages.append(payroll_msg)
+    else:
+        messages.append(payroll_msg)  # includes warning if unpaid
 
     log.info(f"Tick: {state.date_string} | Weather: {state.weather} | Gold: {state.gold}")
     return messages

@@ -36,6 +36,12 @@ class NPC:
     relationship: int = 50  # 0-100, personal relationship with player
     inventory: list[dict] = None  # items the NPC owns
     workplace: str | None = None  # building_id where NPC works
+    # Worker stats (used when employed)
+    skill: int = 1          # 1-10, production multiplier
+    experience: int = 0     # increases over time
+    morale: int = 50        # 0-100, affects productivity
+    health: int = 100       # 0-100, affects attendance
+    salary: int = 10        # daily wage in gold
 
     def __post_init__(self):
         if self.inventory is None:
@@ -149,6 +155,11 @@ def _generate_npcs(traits: dict, count: int) -> list[NPC]:
             relationship=random.randint(30, 70),
             inventory=[],
             workplace=None,
+            skill=random.randint(1, 5),
+            experience=random.randint(0, 20),
+            morale=random.randint(30, 80),
+            health=random.randint(70, 100),
+            salary=random.randint(5, 15),
         ))
     return npcs
 

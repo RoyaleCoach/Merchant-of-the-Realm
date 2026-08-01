@@ -8,6 +8,7 @@ from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
+from src.systems.workforce import get_workforce_summary, get_workers_at_building, get_total_payroll
 from src.economy.inventory import buy, sell, deposit, withdraw
 from src.economy.trading import inspect_item, get_affordability, get_profitability
 from src.economy.buildings import (
@@ -20,7 +21,8 @@ from src.ui.renderer import (
     show_market, show_npcs, show_buildings,
     show_inventory, show_warehouse, show_inspect,
     show_building_info, show_constructible,
-    show_production_report, show_npc_detail, console,
+    show_production_report, show_npc_detail,
+    show_workforce_summary, show_workers, console,
 )
 from src.world.generator import generate_world
 
@@ -130,6 +132,35 @@ def run_game_loop(state: GameState):
                     console.print(dismiss(state, " ".join(cmd.args)))
                 else:
                     console.print("[dim]Usage: dismiss <npc_name>[/dim]")
+
+            case "hire":
+                if len(cmd.args) >= 2:
+                    building_id = cmd.args[-1]
+                    npc_name = " ".join(cmd.args[:-1])
+                    console.print(recruit(state, npc_name, building_id))
+                else:
+                    console.print("[dim]Usage: hire <npc_name> <building_id>[/dim]")
+
+            case "fire":
+                if cmd.args:
+                    console.print(dismiss(state, " ".join(cmd.args)))
+                else:
+                    console.print("[dim]Usage: fire <npc_name>[/dim]")
+
+            case "payroll":
+                summary = get_workforce_summary(state)
+                show_workforce_summary(summary)
+
+            case "workers":
+                if cmd.args:
+                    workers = get_workers_at_building(state, cmd.args[0])
+                    show_workers(workers, cmd.args[0], state)
+                else:
+                    # Show all workers across all buildings
+                    for b in state.buildings:
+                        workers = get_workers_at_building(state, b["building_id"])
+                        if workers:
+                            show_workers(workers, b["building_id"], state)
 
             case "buildings":
                 show_buildings(state)

@@ -65,9 +65,12 @@ def update_production(state: GameState, weather_mod: float) -> list[str]:
         if not produces:
             continue
 
-        # Production scales with workers and weather
+        # Production scales with workers, skill, and weather
         worker_ratio = b["workers"] / max(b["max_workers"], 1)
-        output = int(10 * worker_ratio * weather_mod * b["level"])
+        # Get worker productivity modifier (skill, morale, health)
+        from src.systems.workforce import get_worker_modifier
+        worker_mod = get_worker_modifier(state, b["building_id"])
+        output = int(10 * worker_ratio * weather_mod * b["level"] * worker_mod)
 
         # Add produced goods to market supply
         for item in state.market:

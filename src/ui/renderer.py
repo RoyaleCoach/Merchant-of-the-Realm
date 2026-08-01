@@ -67,8 +67,10 @@ def show_help():
     table.add_row("inspect <item>", "Detailed item analysis (price, supply, demand)")
     table.add_row("npcs", "List town NPCs")
     table.add_row("npc <name>", "View NPC detailed profile")
-    table.add_row("recruit <n> <bld>", "Assign NPC to a building")
-    table.add_row("dismiss <name>", "Remove NPC from workplace")
+    table.add_row("recruit/hire <n> <bld>", "Assign NPC to a building")
+    table.add_row("dismiss/fire <name>", "Remove NPC from workplace")
+    table.add_row("payroll", "View workforce summary & costs")
+    table.add_row("workers [building]", "View workers (all or per building)")
     table.add_row("buildings", "List town buildings")
     table.add_row("building <id>", "View building details")
     table.add_row("build [id]", "Construct a building (or list available)")
@@ -542,6 +544,76 @@ def show_prompt():
     """Display the command prompt."""
     console.print()
     console.print("[bold cyan]merchant→[/bold cyan] ", end="")
+
+
+def show_workforce_summary(summary: dict):
+    """Display workforce summary."""
+    if summary["total_workers"] == 0:
+        console.print("[dim]No workers employed.[/dim]")
+        return
+
+    console.print(Panel(
+        f"[bold]Total Workers:[/bold] {summary['total_workers']}\n"
+        f"[bold]Buildings Staffed:[/bold] {summary['buildings_staffed']}\n"
+        f"[bold]Daily Payroll:[/bold] [yellow]{summary['total_payroll']}g[/yellow]\n"
+        f"[bold]Avg Skill:[/bold] {summary['avg_skill']:.1f}/10  "
+        f"[bold]Avg Morale:[/bold] {summary['avg_morale']:.0f}/100  "
+        f"[bold]Avg Health:[/bold] {summary['avg_health']:.0f}/100",
+        title="[bold]👷 Workforce Overview[/bold]",
+        border_style="yellow",
+    ))
+
+
+def show_workers(workers: list[dict], building_id: str, state: GameState):
+    """Display workers at a building."""
+    if not workers:
+        console.print(f"[dim]No workers at {building_id}.[/dim]")
+        return
+
+    # Find building name
+    building_name = building_id
+    for b in state.buildings:
+        if b["building_id"] == building_id:
+            building_name = b["name"]
+            break
+
+    table = Table(title=f"[bold]👷 Workers at {building_name}[/bold]", border_style="yellow")
+    table.add_column("Name", style="cyan")
+    table.add_column("Profession", style="green")
+    table.add_column("Skill", justify="center", style="yellow")
+    table.add_column("Morale", justify="center")
+    table.add_column("Health", justify="center", style="dim")
+    table.add_column("Salary", justify="right", style="yellow")
+    table.add_column("Exp", justify="right", style="dim")
+
+    for w in sorted(workers, key=lambda x: x["name"]):
+        morale = w.get("morale", 50)
+        if morale >= 70:
+            morale_style = "green"
+        elif morale >= 40:
+            morale_style = "dim"
+        else:
+            morale_style = "red"
+
+        health = w.get("health", 100)
+        if health >= 70:
+            health_style = "green"
+        elif health >= 40:
+            health_style = "yellow"
+        else:
+            health_style = "red"
+
+        table.add_row(
+            w["name"],
+            w.get("profession", "—"),
+            f"{w.get('skill', 1)}/10",
+            f"[{morale_style}]{morale}[/{morale_style}]",
+            f"[{health_style}]{health}[/{health_style}]",
+            f"{w.get('salary', 10)}g",
+            str(w.get("experience", 0)),
+        )
+
+    console.print(table)
 
 
 def show_goodbye():
