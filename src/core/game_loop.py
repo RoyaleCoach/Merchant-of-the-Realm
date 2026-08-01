@@ -7,6 +7,7 @@ from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
+from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
 from src.economy.inventory import buy, sell, deposit, withdraw
 from src.economy.trading import inspect_item, get_affordability, get_profitability
 from src.economy.buildings import (
@@ -19,7 +20,7 @@ from src.ui.renderer import (
     show_market, show_npcs, show_buildings,
     show_inventory, show_warehouse, show_inspect,
     show_building_info, show_constructible,
-    show_production_report, console,
+    show_production_report, show_npc_detail, console,
 )
 from src.world.generator import generate_world
 
@@ -98,6 +99,37 @@ def run_game_loop(state: GameState):
 
             case "npcs":
                 show_npcs(state)
+
+            case "npc":
+                if cmd.args:
+                    npc = get_npc(state, " ".join(cmd.args))
+                    if npc:
+                        info = get_npc_info(npc)
+                        show_npc_detail(info)
+                    else:
+                        console.print(f"[red]NPC not found.[/red]")
+                else:
+                    console.print("[dim]Usage: npc <name>[/dim]")
+
+            case "recruit":
+                if len(cmd.args) >= 2:
+                    building_id = cmd.args[-1]
+                    npc_name = " ".join(cmd.args[:-1])
+                    console.print(recruit(state, npc_name, building_id))
+                else:
+                    available = get_available_npcs(state)
+                    if available:
+                        names = ", ".join(n["name"] for n in available)
+                        console.print(f"[dim]Unemployed: {names}[/dim]")
+                    else:
+                        console.print("[dim]All NPCs are employed.[/dim]")
+                    console.print("[dim]Usage: recruit <npc_name> <building_id>[/dim]")
+
+            case "dismiss":
+                if cmd.args:
+                    console.print(dismiss(state, " ".join(cmd.args)))
+                else:
+                    console.print("[dim]Usage: dismiss <npc_name>[/dim]")
 
             case "buildings":
                 show_buildings(state)

@@ -91,20 +91,14 @@ def update_production(state: GameState, weather_mod: float) -> list[str]:
 
 def update_npcs(state: GameState, mood_shift: int) -> list[str]:
     """
-    Update NPC moods and gold based on daily conditions.
+    Update NPC behavior based on daily conditions.
+    Delegates to npc_system for full behavior update.
     Returns messages about notable NPC changes.
     """
+    from src.systems.npc_system import update_npc_behavior
+
     messages = []
-    moods = ["Angry", "Worried", "Neutral", "Content", "Happy"]
-
-    for npc in state.npcs:
-        # Mood drifts based on events
-        current_idx = moods.index(npc["mood"]) if npc["mood"] in moods else 2
-        new_idx = max(0, min(len(moods) - 1, current_idx + mood_shift + random.randint(-1, 1)))
-        npc["mood"] = moods[new_idx]
-
-        # NPCs earn/spend gold
-        npc["gold"] = max(0, npc["gold"] + random.randint(-10, 15))
+    update_npc_behavior(state, mood_shift)
 
     return messages
 

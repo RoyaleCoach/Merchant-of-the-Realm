@@ -24,11 +24,22 @@ class MarketItem:
 
 @dataclass
 class NPC:
-    """A generated NPC."""
+    """A generated NPC with full attributes."""
     name: str
     profession: str
     gold: int
     mood: str
+    age: int = 25
+    loyalty: int = 50       # 0-100, how loyal to the player
+    greed: int = 50         # 0-100, how greedy (affects trade prices)
+    reputation: int = 50    # 0-100, standing in town
+    relationship: int = 50  # 0-100, personal relationship with player
+    inventory: list[dict] = None  # items the NPC owns
+    workplace: str | None = None  # building_id where NPC works
+
+    def __post_init__(self):
+        if self.inventory is None:
+            self.inventory = []
 
 
 @dataclass
@@ -123,14 +134,21 @@ def _generate_market(items: dict) -> list[MarketItem]:
 
 
 def _generate_npcs(traits: dict, count: int) -> list[NPC]:
-    """Generate random NPCs."""
+    """Generate random NPCs with full attributes."""
     npcs = []
     for _ in range(count):
         npcs.append(NPC(
             name=_random_name(traits),
+            age=random.randint(18, 65),
             profession=random.choice(traits["professions"]),
             gold=random.randint(10, 200),
             mood=random.choice(traits["moods"]),
+            loyalty=random.randint(30, 70),
+            greed=random.randint(20, 80),
+            reputation=random.randint(30, 70),
+            relationship=random.randint(30, 70),
+            inventory=[],
+            workplace=None,
         ))
     return npcs
 

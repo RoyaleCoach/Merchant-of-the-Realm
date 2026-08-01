@@ -66,6 +66,9 @@ def show_help():
     table.add_row("market", "View market prices")
     table.add_row("inspect <item>", "Detailed item analysis (price, supply, demand)")
     table.add_row("npcs", "List town NPCs")
+    table.add_row("npc <name>", "View NPC detailed profile")
+    table.add_row("recruit <n> <bld>", "Assign NPC to a building")
+    table.add_row("dismiss <name>", "Remove NPC from workplace")
     table.add_row("buildings", "List town buildings")
     table.add_row("building <id>", "View building details")
     table.add_row("build [id]", "Construct a building (or list available)")
@@ -261,7 +264,7 @@ def affordable_text(affordability: dict) -> str:
 
 
 def show_npcs(state: GameState):
-    """Display town NPCs."""
+    """Display town NPCs with employment status."""
     if not state.npcs:
         console.print("[dim]No NPCs in town.[/dim]")
         return
@@ -271,12 +274,60 @@ def show_npcs(state: GameState):
     table.add_column("Profession", style="green")
     table.add_column("Gold", justify="right", style="yellow")
     table.add_column("Mood", justify="center")
+    table.add_column("Workplace", style="dim")
 
-    for n in state.npcs:
+    for n in sorted(state.npcs, key=lambda x: x["name"]):
         mood_icon = {"Happy": "😊", "Content": "🙂", "Neutral": "😐", "Worried": "😟", "Angry": "😠"}.get(n["mood"], "•")
-        table.add_row(n["name"], n["profession"], f"{n['gold']}g", f"{mood_icon} {n['mood']}")
+        workplace = n.get("workplace", "—")
+        if workplace and workplace != "—":
+            # Find building name
+            workplace_name = workplace
+            for b in state.buildings:
+                if b["building_id"] == workplace:
+                    workplace_name = b["name"]
+                    break
+        else:
+            workplace_name = "[dim]Unemployed[/dim]"
+        table.add_row(n["name"], n["profession"], f"{n['gold']}g", f"{mood_icon} {n['mood']}", workplace_name)
 
     console.print(table)
+    console.print("[dim]Use 'npc <name>' for detailed info. 'recruit <name> <building>' to hire.[/dim]")
+
+
+def show_npc_detail(info: dict):
+    """Display detailed NPC information."""
+    # Header
+    console.print(Panel(
+        f"[bold]{info['name']}[/bold] — {info['profession']}, Age {info['age']}\n"
+        f"{info['mood_icon']} {info['mood']} | 💰 {info['gold']}g",
+        title="[bold]👤 NPC Profile[/bold]",
+        border_style="yellow",
+    ))
+
+    # Attributes table
+    def attr_style(value: int) -> str:
+        if value >= 70:
+            return "green"
+        elif value >= 40:
+            return "dim"
+        else:
+            return "red"
+
+    attrs = Table(show_header=False, box=None, padding=(0, 2))
+    attrs.add_column("Attribute", style="cyan", width=14)
+    attrs.add_column("Value", justify="right")
+    attrs.add_column("Label", style="dim")
+    attrs.add_row("Loyalty", str(info["loyalty"]), f"[{attr_style(info['loyalty'])}]{info['loyalty_label']}[/{attr_style(info['loyalty'])}]")
+    attrs.add_row("Greed", str(info["greed"]), f"[{attr_style(100 - info['greed'])}]{info['greed_label']}[/{attr_style(100 - info['greed'])}]")
+    attrs.add_row("Reputation", str(info["reputation"]), f"[{attr_style(info['reputation'])}]{info['rep_label']}[/{attr_style(info['reputation'])}]")
+    attrs.add_row("Relationship", str(info["relationship"]), f"[{attr_style(info['relationship'])}]{info['rel_label']}[/{attr_style(info['relationship'])}]")
+    console.print(Panel(attrs, title="[bold]Attributes[/bold]", border_style="dim"))
+
+    # Workplace
+    if info["workplace"]:
+        console.print(f"[dim]Works at: {info['workplace']}[/dim]")
+    else:
+        console.print("[dim]Currently unemployed — use 'recruit <name> <building>' to hire.[/dim]")
 
 
 def show_buildings(state: GameState):
