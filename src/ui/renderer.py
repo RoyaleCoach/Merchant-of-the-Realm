@@ -39,7 +39,7 @@ def show_game_header(state: GameState):
     header.add_column("Right", style="yellow", justify="right")
     header.add_row(
         f"🏰 {state.town_name}, {state.kingdom_name}",
-        f"💰 {state.gold}g  🎒 {state.inventory_weight}/{state.inventory_capacity}  {state.short_date}  👥 {state.population}  {state.weather}",
+        f"💰 {state.gold}g  🎒 {state.inventory_weight}/{state.inventory_capacity}  👥 {state.population}  😊{state.happiness}  {state.short_date}  {state.weather}",
     )
     console.print(header)
 
@@ -78,6 +78,7 @@ def show_help():
     table.add_row("demolish <id>", "Demolish a building (50% refund)")
     table.add_row("production (prod)", "View daily production report")
     table.add_row("supply", "View supply chain status & bottlenecks")
+    table.add_row("citizens (civ)", "View population, happiness, crime, needs")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -682,6 +683,54 @@ def show_supply_chains(chains: list[dict], summary: dict):
             title=f"{health_icon} Chain {i + 1}",
             border_style="dim",
         ))
+
+
+def show_citizens(status: dict):
+    """Display citizen simulation status."""
+    # Header panel
+    console.print(Panel(
+        f"[bold]Population:[/bold] {status['population']}  "
+        f"[bold]Happiness:[/bold] [{status['happiness_color']}]{status['happiness']}/100 ({status['happiness_label']})[/{status['happiness_color']}]  "
+        f"[bold]Crime:[/bold] [{status['crime_color']}]{status['crime']}/100 ({status['crime_label']})[/{status['crime_color']}]  "
+        f"[bold]Trend:[/bold] [{status['migration_color']}]{status['migration_label']}[/{status['migration_color']}]",
+        title="[bold]👥 Citizens[/bold]",
+        border_style="yellow",
+    ))
+
+    # Needs table
+    table = Table(title="[bold]Need Fulfillment[/bold]", border_style="yellow")
+    table.add_column("Need", style="cyan")
+    table.add_column("Fulfillment", justify="right")
+    table.add_column("Status", justify="center", width=20)
+
+    for name, value, icon in status["needs"]:
+        if value >= 70:
+            bar_style = "green"
+            label = "Well supplied"
+        elif value >= 40:
+            bar_style = "yellow"
+            label = "Adequate"
+        elif value >= 20:
+            bar_style = "red"
+            label = "Shortage"
+        else:
+            bar_style = "red"
+            label = "Critical!"
+
+        bar = "█" * (value // 10) + "░" * (10 - value // 10)
+        table.add_row(f"{icon} {name}", f"{value}%", f"[{bar_style}]{bar}[/{bar_style}] {label}")
+
+    console.print(table)
+
+    # Average
+    avg = status["avg_fulfillment"]
+    if avg >= 60:
+        avg_style = "green"
+    elif avg >= 40:
+        avg_style = "yellow"
+    else:
+        avg_style = "red"
+    console.print(f"[dim]Average fulfillment: [{avg_style}]{avg:.0f}%[/{avg_style}][/dim]")
 
 
 def show_goodbye():

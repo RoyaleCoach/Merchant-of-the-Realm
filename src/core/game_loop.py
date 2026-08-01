@@ -8,6 +8,7 @@ from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
+from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
 from src.systems.workforce import get_workforce_summary, get_workers_at_building, get_total_payroll
 from src.economy.inventory import buy, sell, deposit, withdraw
@@ -24,7 +25,7 @@ from src.ui.renderer import (
     show_building_info, show_constructible,
     show_production_report, show_npc_detail,
     show_workforce_summary, show_workers,
-    show_supply_chains, console,
+    show_supply_chains, show_citizens, console,
 )
 from src.world.generator import generate_world
 
@@ -207,6 +208,10 @@ def run_game_loop(state: GameState):
                 chains = analyze_supply_chain(state, weather_mod)
                 summary = get_chain_summary(state, weather_mod)
                 show_supply_chains(chains, summary)
+
+            case "citizens" | "civ":
+                status = get_citizen_status(state)
+                show_citizens(status)
 
             case "inventory" | "inv":
                 show_inventory(state)

@@ -39,6 +39,17 @@ class GameState:
     warehouse: list[dict] = field(default_factory=list)
     warehouse_capacity: int = 500  # max weight units
 
+    # Citizen simulation
+    happiness: int = 50        # 0-100, overall population happiness
+    crime: int = 10           # 0-100, crime level
+    migration: int = 0        # net migration (positive = inflow)
+    # Need fulfillment (0-100, how well each need is met)
+    food_supply: int = 50
+    clothing_supply: int = 50
+    tools_supply: int = 50
+    housing_supply: int = 50
+    luxury_supply: int = 50
+
     # World entities (stored as dicts for JSON serialization)
     market: list[dict] = field(default_factory=list)
     npcs: list[dict] = field(default_factory=list)
@@ -146,3 +157,17 @@ class GameState:
             if i["item_id"] == item_id:
                 return i
         return None
+
+    # --- Citizen helpers ---
+
+    @property
+    def avg_need_fulfillment(self) -> float:
+        """Average of all need fulfillment levels."""
+        needs = [self.food_supply, self.clothing_supply, self.tools_supply,
+                 self.housing_supply, self.luxury_supply]
+        return sum(needs) / len(needs)
+
+    @property
+    def population_capacity(self) -> int:
+        """Max population based on housing."""
+        return int(self.population * (self.housing_supply / 100) * 1.5)

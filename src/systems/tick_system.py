@@ -14,6 +14,7 @@ from src.systems.daily_updates import (
     get_mood_mod,
 )
 from src.systems.workforce import pay_workers, update_worker_stats
+from src.systems.citizens import process_daily_citizens
 
 log = get_logger(__name__)
 
@@ -55,6 +56,10 @@ def tick(state: GameState) -> list[str]:
     # Economy (price recalculation)
     econ_msgs = update_economy(state, weather_mod)
     messages.extend(econ_msgs)
+
+    # Citizen simulation (consumption, happiness, crime, migration)
+    citizen_msgs = process_daily_citizens(state)
+    messages.extend(citizen_msgs)
 
     # NPC behavior
     update_npcs(state, mood_mod)
