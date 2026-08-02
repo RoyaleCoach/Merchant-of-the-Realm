@@ -84,6 +84,7 @@ def show_help():
     table.add_row("weather (w)", "View current weather, season, and effects")
     table.add_row("events (ev)", "View event history and statistics")
     table.add_row("reputation (rep)", "View rank, perks, and progress")
+    table.add_row("town (tier)", "View town tier, expansion, and building unlocks")
     table.add_row("choose <n>", "Make a choice during a major event")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
@@ -106,6 +107,7 @@ def show_status(state: GameState):
     table.add_row("Kingdom", state.kingdom_name)
     table.add_row("Town", state.town_name)
     table.add_row("Population", str(state.population))
+    table.add_row("Tier", f"{state.town_tier.replace('_', ' ').title()}")
     table.add_row("Weather", state.weather)
     table.add_row("Date", state.date_string)
     table.add_row("Day Total", f"{state.total_days} days elapsed")
@@ -932,6 +934,68 @@ def show_reputation(rep: int, progress: dict, buy_disc: float, sell_bonus: float
             perks,
         )
     console.print(rank_table)
+
+
+def show_town(state: GameState, progress: dict, unlocked: list[str]):
+    """Display town tier, expansion progress, and unlocked buildings."""
+    current = progress["current"]
+    next_tier = progress["next"]
+
+    # Header with tier
+    console.print(Panel(
+        f"{current['icon']} [bold]{state.town_name}[/bold] — [yellow]{current['name']}[/yellow]"
+        f"\n[dim]{current['description']}[/dim]",
+        title="[bold]🏘️ Town Status[/bold]",
+        border_style="yellow",
+    ))
+
+    # Population and progress
+    if next_tier:
+        bar_filled = progress["progress"] // 5
+        bar_empty = 20 - bar_filled
+        bar = "█" * bar_filled + "░" * bar_empty
+        console.print(f"  Population: [cyan]{state.population}[/cyan] / {next_tier['threshold']}")
+        console.print(f"  Next: [cyan]{next_tier['icon']} {next_tier['name']}[/cyan] ({progress['remaining']} more people)")
+        console.print(f"  [green]{bar}[/green] {progress['progress']}%")
+    else:
+        console.print(f"  Population: [cyan]{state.population}[/cyan]")
+        console.print("  [green]Maximum tier achieved! 👑[/green]")
+
+    console.print()
+
+    # Perks
+    perks = current["perks"]
+    perks_table = Table(title="[bold]Town Perks[/bold]", border_style="dim")
+    perks_table.add_column("Perk", style="cyan")
+    perks_table.add_column("Value", justify="right")
+    perks_table.add_column("Description", style="dim")
+    perks_table.add_row("Demand", f"x{perks['demand_multiplier']}", "Market demand multiplier")
+    perks_table.add_row("Migration", f"+{perks['migration_bonus']}", "Daily migration bonus")
+    perks_table.add_row("Max Buildings", str(current["max_buildings"]), f"{len(state.buildings)} built")
+    console.print(perks_table)
+
+    # Unlocked buildings
+    from src.utils.data_loader import get_all_buildings
+    all_buildings = get_all_buildings()
+    console.print()
+    unlock_table = Table(title="[bold]Building Unlocks[/bold]", border_style="dim")
+    unlock_table.add_column("Status", width=4)
+    unlock_table.add_column("Building", style="cyan")
+    unlock_table.add_column("Cost", justify="right", style="yellow")
+    unlock_table.add_column("Description", style="dim")
+
+    for bid, bdata in all_buildings.items():
+        if bid in unlocked:
+            # Check if already built
+            built = any(b["building_id"] == bid for b in state.buildings)
+            if built:
+                unlock_table.add_row("✓", bdata["name"], "[dim]built[/dim]", bdata["description"])
+            else:
+                unlock_table.add_row("◆", bdata["name"], f"{bdata['cost']}g", bdata["description"])
+        else:
+            unlock_table.add_row("✗", f"[dim]{bdata['name']}[/dim]", f"[dim]{bdata['cost']}g[/dim]", "[dim]Locked — expand town[/dim]")
+
+    console.print(unlock_table)
 
 
 def show_goodbye():

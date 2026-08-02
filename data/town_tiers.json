@@ -1,0 +1,76 @@
+{
+  "description": "Town expansion tiers. Population triggers automatic promotion.",
+  "tiers": [
+    {
+      "id": "village",
+      "name": "Village",
+      "threshold": 0,
+      "icon": "🏘️",
+      "max_buildings": 5,
+      "description": "A small settlement with basic needs.",
+      "unlocks": ["farm", "bakery", "lumber_mill", "fishery"],
+      "perks": {
+        "demand_multiplier": 1.0,
+        "migration_bonus": 0
+      }
+    },
+    {
+      "id": "hamlet",
+      "name": "Hamlet",
+      "threshold": 500,
+      "icon": "🏡",
+      "max_buildings": 10,
+      "description": "Growing community with new opportunities.",
+      "unlocks": ["tavern", "weaver", "tannery"],
+      "perks": {
+        "demand_multiplier": 1.2,
+        "migration_bonus": 1
+      }
+    },
+    {
+      "id": "town",
+      "name": "Town",
+      "threshold": 1000,
+      "icon": "🏙️",
+      "max_buildings": 20,
+      "description": "A bustling town with diverse industries.",
+      "unlocks": ["blacksmith", "vineyard"],
+      "perks": {
+        "demand_multiplier": 1.5,
+        "migration_bonus": 2
+      }
+    },
+    {
+      "id": "city",
+      "name": "City",
+      "threshold": 2500,
+      "icon": "🌆",
+      "max_buildings": 35,
+      "description": "A thriving city with vast commerce.",
+      "unlocks": ["mine"],
+      "perks": {
+        "demand_multiplier": 2.0,
+        "migration_bonus": 3
+      }
+    },
+    {
+      "id": "trade_capital",
+      "name": "Trade Capital",
+      "threshold": 5000,
+      "icon": "👑",
+      "max_buildings": 50,
+      "description": "The crown jewel of the realm. Merchants travel from afar.",
+      "unlocks": [],
+      "perks": {
+        "demand_multiplier": 3.0,
+        "migration_bonus": 5
+      }
+    }
+  ],
+  "promotion_messages": {
+    "hamlet": "🏡 Your Village has grown into a Hamlet! New buildings available: Tavern, Weaver, Tanner.",
+    "town": "🏙️ Your Hamlet has become a Town! New buildings available: Blacksmith, Vineyard.",
+    "city": "🌆 Your Town has risen to a City! New buildings available: Mine.",
+    "trade_capital": "👑 Your City is now a Trade Capital! The realm marvels at your success."
+  }
+}

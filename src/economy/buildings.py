@@ -23,12 +23,14 @@ def get_building_data(building_id: str) -> dict | None:
 
 
 def get_constructible_buildings(state: GameState) -> list[dict]:
-    """Get all buildings that can be constructed (not already built, or below max level)."""
+    """Get all buildings that can be constructed (unlocked, not already built)."""
+    from src.systems.town_expansion import is_building_unlocked, get_all_unlocked_buildings
     all_buildings = get_all_buildings()
     owned_ids = {b["building_id"] for b in state.buildings}
+    unlocked = get_all_unlocked_buildings(state)
     result = []
     for bid, bdata in all_buildings.items():
-        if bid not in owned_ids:
+        if bid not in owned_ids and bid in unlocked:
             result.append({"building_id": bid, **bdata})
     return result
 
@@ -52,17 +54,27 @@ def get_demolish_refund(building_id: str) -> int:
 def build(state: GameState, building_id: str) -> str:
     """
     Construct a new building.
-    Validates: building exists, not enough gold, not already built.
+    Validates: building exists, unlocked at tier, not enough gold, not already built.
     Returns a result message.
     """
+    from src.systems.town_expansion import is_building_unlocked, get_max_buildings
+
     bdata = get_building_data(building_id)
     if bdata is None:
         return f"Unknown building type '{building_id}'."
+
+    # Check if unlocked at current tier
+    if not is_building_unlocked(state, building_id):
+        return f"{bdata['name']} is not available yet. Grow your town to unlock it."
 
     # Check if already built
     for b in state.buildings:
         if b["building_id"] == building_id:
             return f"{bdata['name']} already exists in town. Use 'upgrade' to improve it."
+
+    # Check max buildings
+    if len(state.buildings) >= get_max_buildings(state):
+        return f"Max buildings reached ({get_max_buildings(state)}). Expand your town to build more."
 
     cost = bdata["cost"]
     if state.gold < cost:

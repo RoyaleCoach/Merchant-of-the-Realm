@@ -10,6 +10,7 @@ from src.systems.daily_updates import get_weather_mod
 from src.systems.season_effects import get_active_effects, roll_season_event
 from src.systems.event_engine import resolve_choice, get_event_log, get_event_summary
 from src.systems.reputation import get_rank_progress, get_current_rank, get_buy_discount, get_sell_bonus
+from src.systems.town_expansion import get_tier_progress, get_current_tier, get_all_unlocked_buildings
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
@@ -232,6 +233,12 @@ def run_game_loop(state: GameState):
                 buy_disc = get_buy_discount(state)
                 sell_bonus = get_sell_bonus(state)
                 show_reputation(state.reputation, progress, buy_disc, sell_bonus)
+
+            case "town" | "tier":
+                from src.ui.renderer import show_town
+                progress = get_tier_progress(state)
+                unlocked = get_all_unlocked_buildings(state)
+                show_town(state, progress, unlocked)
 
             case "choose":
                 if not state.pending_choices:

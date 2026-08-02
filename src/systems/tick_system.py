@@ -14,7 +14,8 @@ from src.systems.daily_updates import (
 )
 from src.systems.season_effects import roll_season_event
 from src.systems.event_engine import roll_daily_event, roll_major_event
-from src.systems.reputation import daily_reputation_tick, add_reputation
+from src.systems.reputation import daily_reputation_tick
+from src.systems.town_expansion import check_promotion, get_migration_bonus
 from src.systems.workforce import pay_workers, update_worker_stats
 from src.systems.citizens import process_daily_citizens
 
@@ -97,10 +98,12 @@ def tick(state: GameState) -> list[str]:
     # Daily reputation changes (crime penalty, etc.)
     rep_change = daily_reputation_tick(state)
     if rep_change != 0:
-        # Check for rank change
-        new_rep, new_rank = add_reputation(state, 0)  # just to check rank
-        if new_rank:
-            messages.append(f"⭐ Rank up! You are now a [yellow]{new_rank['name']}[/yellow] {new_rank['icon']}")
+        messages.append(f"  Reputation: {rep_change:+d} (high crime hurts your standing)")
+
+    # Town expansion check
+    new_tier, promo_msg = check_promotion(state)
+    if new_tier and promo_msg:
+        messages.append(f"  {promo_msg}")
 
     log.info(f"Tick: {state.date_string} | Weather: {state.weather} | Gold: {state.gold} | Rep: {state.reputation}")
     return messages

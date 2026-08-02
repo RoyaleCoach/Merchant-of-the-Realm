@@ -15,6 +15,7 @@ class GameState:
     # World
     kingdom_name: str = ""
     town_name: str = ""
+    town_tier: str = "village"
     population: int = 0
     weather: str = "Sunny"
 

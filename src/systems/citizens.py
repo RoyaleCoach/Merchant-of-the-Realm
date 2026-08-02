@@ -176,6 +176,10 @@ def update_migration(state: GameState) -> int:
         # Crisis — mass exodus
         migration = random.randint(-10, -3)
 
+    # Town tier bonus
+    from src.systems.town_expansion import get_migration_bonus
+    migration += get_migration_bonus(state)
+
     # Crime penalty
     if state.crime > 70:
         migration -= random.randint(2, 5)
