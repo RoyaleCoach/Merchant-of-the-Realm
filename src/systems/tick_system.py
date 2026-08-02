@@ -7,13 +7,13 @@ from src.systems.daily_updates import (
     update_production,
     update_npcs,
     update_weather,
-    roll_events,
     is_season_start,
     roll_seasonal_events,
     get_weather_mod,
     get_mood_mod,
 )
 from src.systems.season_effects import roll_season_event
+from src.systems.event_engine import roll_daily_event, roll_major_event
 from src.systems.workforce import pay_workers, update_worker_stats
 from src.systems.citizens import process_daily_citizens
 
@@ -51,8 +51,22 @@ def tick(state: GameState) -> list[str]:
     mood_mod = get_mood_mod(state)
 
     # Daily random events
-    event_msgs = roll_events(state)
-    messages.extend(event_msgs)
+    daily_msg, _ = roll_daily_event(state)
+    if daily_msg:
+        messages.append(daily_msg)
+
+    # Major events (5% chance, player choices)
+    major_msg, choices = roll_major_event(state)
+    if major_msg:
+        messages.append(major_msg)
+        if choices:
+            # Store choices for the game loop to handle
+            state.pending_choices = choices
+            state.pending_event_text = major_msg
+        else:
+            state.pending_choices = []
+    else:
+        state.pending_choices = []
 
     # Production (buildings produce/consume goods)
     prod_msgs = update_production(state, weather_mod)

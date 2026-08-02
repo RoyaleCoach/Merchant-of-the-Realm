@@ -8,6 +8,7 @@ from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
 from src.systems.season_effects import get_active_effects, roll_season_event
+from src.systems.event_engine import resolve_choice, get_event_log, get_event_summary
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
@@ -218,6 +219,34 @@ def run_game_loop(state: GameState):
                 effects = get_active_effects(state)
                 show_weather(state, effects)
 
+            case "events" | "ev":
+                from src.ui.renderer import show_event_log
+                log = get_event_log()
+                summary = get_event_summary()
+                show_event_log(log, summary)
+
+            case "choose":
+                if not state.pending_choices:
+                    console.print("[dim]No pending choices.[/dim]")
+                elif cmd.args:
+                    try:
+                        idx = int(cmd.args[0]) - 1
+                        if 0 <= idx < len(state.pending_choices):
+                            choice = state.pending_choices[idx]
+                            resolve_choice(state, choice["effect"])
+                            console.print(f"[green]Chose: {choice['label']}[/green]")
+                            state.pending_choices = []
+                        else:
+                            console.print("[red]Invalid choice number.[/red]")
+                    except ValueError:
+                        console.print("[red]Usage: choose <number>[/red]")
+                else:
+                    # Display pending choices
+                    console.print(f"\n[yellow]{state.pending_event_text}[/yellow]")
+                    for i, c in enumerate(state.pending_choices):
+                        console.print(f"  [cyan]{i + 1}.[/cyan] {c['label']}")
+                    console.print("[dim]Use 'choose <number>' to decide.[/dim]")
+
             case "inventory" | "inv":
                 show_inventory(state)
 
@@ -276,6 +305,12 @@ def run_game_loop(state: GameState):
                 messages = tick(state)
                 show_messages(messages)
                 show_hud(state)
+                # Show pending event choices
+                if state.pending_choices:
+                    console.print(f"\n[yellow]⚡ {state.pending_event_text}[/yellow]")
+                    for i, c in enumerate(state.pending_choices):
+                        console.print(f"  [cyan]{i + 1}.[/cyan] {c['label']}")
+                    console.print("[dim]Use 'choose <number>' to respond.[/dim]")
 
             case "save":
                 slot = cmd.args[0] if cmd.args else "quicksave"

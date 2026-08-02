@@ -82,6 +82,8 @@ def show_help():
     table.add_row("supply", "View supply chain status & bottlenecks")
     table.add_row("citizens (civ)", "View population, happiness, crime, needs")
     table.add_row("weather (w)", "View current weather, season, and effects")
+    table.add_row("events (ev)", "View event history and statistics")
+    table.add_row("choose <n>", "Make a choice during a major event")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -822,6 +824,51 @@ def _days_until_season_end(state: GameState) -> int:
                      (state.week - 1) * GameState.DAYS_PER_WEEK +
                      (state.day - 1))
     return days_per_season - day_of_season
+
+
+def show_event_log(log: list[dict], summary: dict):
+    """Display event history and summary."""
+    # Summary header
+    console.print(Panel(
+        f"Total events: [bold]{summary['total']}[/bold]  "
+        f"[green]Positive: {summary.get('positive', 0)}[/green]  "
+        f"[red]Negative: {summary.get('negative', 0)}[/red]  "
+        f"[yellow]Disasters: {summary.get('disaster', 0)}[/yellow]  "
+        f"[blue]Opportunities: {summary.get('opportunity', 0)}[/blue]",
+        title="[bold]📜 Event Log[/bold]",
+        border_style="yellow",
+    ))
+
+    if not log:
+        console.print("[dim]No events recorded yet.[/dim]")
+        return
+
+    # Recent events table
+    table = Table(title="[bold]Recent Events[/bold]", border_style="dim")
+    table.add_column("Day", style="dim", width=6)
+    table.add_column("Date", style="cyan", width=22)
+    table.add_column("Event")
+
+    for entry in reversed(log[-15:]):
+        etype = entry.get("type", "neutral")
+        if etype == "positive":
+            icon = "[green]✦[/green]"
+        elif etype == "negative":
+            icon = "[red]✗[/red]"
+        elif etype == "disaster":
+            icon = "[red]⚠[/red]"
+        elif etype == "opportunity":
+            icon = "[blue]★[/blue]"
+        else:
+            icon = "[dim]·[/dim]"
+
+        table.add_row(
+            str(entry["day"]),
+            entry["date"],
+            f"{icon} {entry['text']}",
+        )
+
+    console.print(table)
 
 
 def show_goodbye():

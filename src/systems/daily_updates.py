@@ -147,29 +147,6 @@ def update_weather(state: GameState) -> str | None:
     return None
 
 
-def roll_events(state: GameState) -> list[str]:
-    """
-    Roll for daily random events.
-    Returns list of event messages.
-    """
-    messages = []
-    events_data = load_data("events.json")
-
-    # Check for daily event
-    daily_events = events_data.get("daily", [])
-    roll = random.random()
-    cumulative = 0.0
-    for event in daily_events:
-        cumulative += event["chance"]
-        if roll <= cumulative:
-            messages.append(event["text"])
-            # Apply effects
-            state.gold = max(0, state.gold + event["effect"].get("gold", 0))
-            break
-
-    return messages
-
-
 def is_season_start(state: GameState) -> bool:
     """Check if today is the first day of a new season."""
     return state.day == 1 and state.week == 1 and state.month == 1

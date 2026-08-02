@@ -1,13 +1,249 @@
 {
   "daily": [
-    { "text": "A traveling merchant passes through town, bringing rare goods.", "chance": 0.05, "effect": { "gold": 0, "mood": 1 } },
-    { "text": "Children play in the streets. The town feels lively.", "chance": 0.08, "effect": { "gold": 0, "mood": 1 } },
-    { "text": "A minor dispute breaks out at the market.", "chance": 0.06, "effect": { "gold": 0, "mood": -1 } },
-    { "text": "A farmer's cart breaks down, delaying shipments.", "chance": 0.04, "effect": { "gold": -10, "mood": -1 } },
-    { "text": "A minstrel performs in the square, lifting spirits.", "chance": 0.05, "effect": { "gold": -5, "mood": 2 } },
-    { "text": "Bandits spotted on the trade road. Caravans delayed.", "chance": 0.03, "effect": { "gold": -20, "mood": -2 } },
-    { "text": "A good omen! A double rainbow over the kingdom.", "chance": 0.02, "effect": { "gold": 0, "mood": 2 } },
-    { "text": "Nothing unusual happens today.", "chance": 0.67, "effect": { "gold": 0, "mood": 0 } }
+    {
+      "id": "traveling_merchant",
+      "text": "A traveling merchant passes through town, bringing rare goods.",
+      "chance": 0.05,
+      "effect": { "gold": 0, "mood": 1 },
+      "type": "positive"
+    },
+    {
+      "id": "children_playing",
+      "text": "Children play in the streets. The town feels lively.",
+      "chance": 0.08,
+      "effect": { "gold": 0, "mood": 1 },
+      "type": "positive"
+    },
+    {
+      "id": "market_dispute",
+      "text": "A minor dispute breaks out at the market.",
+      "chance": 0.06,
+      "effect": { "gold": 0, "mood": -1 },
+      "type": "negative"
+    },
+    {
+      "id": "cart_breakdown",
+      "text": "A farmer's cart breaks down, delaying shipments.",
+      "chance": 0.04,
+      "effect": { "gold": -10, "mood": -1 },
+      "type": "negative"
+    },
+    {
+      "id": "minstrel",
+      "text": "A minstrel performs in the square, lifting spirits.",
+      "chance": 0.05,
+      "effect": { "gold": -5, "mood": 2 },
+      "type": "positive"
+    },
+    {
+      "id": "bandits_road",
+      "text": "Bandits spotted on the trade road. Caravans delayed.",
+      "chance": 0.03,
+      "effect": { "gold": -20, "mood": -2 },
+      "type": "negative"
+    },
+    {
+      "id": "double_rainbow",
+      "text": "A good omen! A double rainbow over the kingdom.",
+      "chance": 0.02,
+      "effect": { "gold": 0, "mood": 2 },
+      "type": "positive"
+    },
+    {
+      "id": "nothing",
+      "text": "Nothing unusual happens today.",
+      "chance": 0.30,
+      "effect": { "gold": 0, "mood": 0 },
+      "type": "neutral"
+    }
+  ],
+  "major": [
+    {
+      "id": "fire",
+      "name": "Fire",
+      "text": "🔥 A fire breaks out in town! Buildings are at risk.",
+      "chance": 0.02,
+      "type": "disaster",
+      "effect": { "gold": -100, "mood": -10, "happiness": -10 },
+      "choice": {
+        "prompt": "Do you want to spend gold to help fight the fire?",
+        "options": [
+          { "label": "Send help (-150g, reduce damage)", "effect": { "gold": -150, "mood": 5, "happiness": 5 } },
+          { "label": "Let it burn", "effect": { "gold": 0, "mood": -5, "crime": 5 } }
+        ]
+      }
+    },
+    {
+      "id": "bandits",
+      "name": "Bandits",
+      "text": "⚔️ Bandits are raiding the outskirts! Travelers are terrified.",
+      "chance": 0.02,
+      "type": "disaster",
+      "effect": { "gold": -50, "mood": -8, "crime": 10 },
+      "choice": {
+        "prompt": "How do you respond?",
+        "options": [
+          { "label": "Hire guards (-200g, restore order)", "effect": { "gold": -200, "mood": 8, "crime": -10 } },
+          { "label": "Rally the townspeople (free, risky)", "effect": { "gold": 0, "mood": 3, "crime": -5 } }
+        ]
+      }
+    },
+    {
+      "id": "festival",
+      "name": "Festival",
+      "text": "🎉 The town announces a grand festival! Citizens are excited.",
+      "chance": 0.03,
+      "type": "opportunity",
+      "effect": { "gold": -30, "mood": 10, "happiness": 10 },
+      "choice": {
+        "prompt": "Do you want to sponsor the festival?",
+        "options": [
+          { "label": "Sponsor lavishly (-300g, big boost)", "effect": { "gold": -300, "mood": 15, "happiness": 15 } },
+          { "label": "Contribute modestly (-100g)", "effect": { "gold": -100, "mood": 5, "happiness": 5 } },
+          { "label": "Decline", "effect": { "gold": 0, "mood": -3 } }
+        ]
+      }
+    },
+    {
+      "id": "disease",
+      "name": "Disease",
+      "text": "🦠 A sickness spreads through town. Workers are falling ill.",
+      "chance": 0.02,
+      "type": "disaster",
+      "effect": { "gold": 0, "mood": -10, "happiness": -10 },
+      "choice": {
+        "prompt": "How do you respond?",
+        "options": [
+          { "label": "Fund a healer (-250g, contain outbreak)", "effect": { "gold": -250, "mood": 10, "happiness": 10 } },
+          { "label": "Quarantine (free, slower recovery)", "effect": { "gold": 0, "mood": -5, "happiness": -5 } }
+        ]
+      }
+    },
+    {
+      "id": "merchant_caravan",
+      "name": "Merchant Caravan",
+      "text": "🐪 A wealthy merchant caravan arrives seeking trade!",
+      "chance": 0.04,
+      "type": "opportunity",
+      "effect": { "gold": 100, "mood": 5 },
+      "choice": {
+        "prompt": "Trade with the caravan?",
+        "options": [
+          { "label": "Trade aggressively (+200g, risk)", "effect": { "gold": 200, "mood": 3 } },
+          { "label": "Trade modestly (+100g)", "effect": { "gold": 100, "mood": 5 } },
+          { "label": "Pass", "effect": { "gold": 0, "mood": -2 } }
+        ]
+      }
+    },
+    {
+      "id": "royal_visit",
+      "name": "Royal Visit",
+      "text": "👑 The King announces a royal visit to your town!",
+      "chance": 0.01,
+      "type": "opportunity",
+      "effect": { "gold": 0, "mood": 5 },
+      "choice": {
+        "prompt": "How do you prepare?",
+        "options": [
+          { "label": "Grand preparations (-500g, major reward)", "effect": { "gold": -500, "mood": 20, "happiness": 15 } },
+          { "label": "Modest welcome (-200g)", "effect": { "gold": -200, "mood": 10, "happiness": 5 } },
+          { "label": "Low-key (free, risk offending)", "effect": { "gold": 0, "mood": -10, "happiness": -5 } }
+        ]
+      }
+    },
+    {
+      "id": "mine_collapse",
+      "name": "Mine Collapse",
+      "text": "⛏️ The mine has collapsed! Miners are trapped.",
+      "chance": 0.015,
+      "type": "disaster",
+      "effect": { "gold": -80, "mood": -12, "happiness": -8 },
+      "choice": {
+        "prompt": "Send a rescue party?",
+        "options": [
+          { "label": "Full rescue (-300g, save miners)", "effect": { "gold": -300, "mood": 10, "happiness": 10 } },
+          { "label": "Wait for volunteers (free)", "effect": { "gold": 0, "mood": -8, "happiness": -5 } }
+        ]
+      }
+    },
+    {
+      "id": "bountiful_harvest",
+      "name": "Bountiful Harvest",
+      "text": "🌾 An unexpectedly bountiful harvest! Food is plentiful.",
+      "chance": 0.03,
+      "type": "opportunity",
+      "effect": { "gold": 50, "mood": 8, "happiness": 8 },
+      "choice": {
+        "prompt": "What do you do with the surplus?",
+        "options": [
+          { "label": "Sell for profit (+150g)", "effect": { "gold": 150, "mood": 0, "happiness": -3 } },
+          { "label": "Distribute to the people (free, big happiness)", "effect": { "gold": 0, "mood": 12, "happiness": 12 } },
+          { "label": "Store for winter (free, modest)", "effect": { "gold": 0, "mood": 5, "happiness": 5 } }
+        ]
+      }
+    },
+    {
+      "id": "drought",
+      "name": "Drought",
+      "text": "🏜️ A severe drought dries up the river. Crops are wilting.",
+      "chance": 0.02,
+      "type": "disaster",
+      "effect": { "gold": -40, "mood": -8, "happiness": -8 },
+      "choice": {
+        "prompt": "How do you respond?",
+        "options": [
+          { "label": "Dig wells (-200g, long-term fix)", "effect": { "gold": -200, "mood": 5, "happiness": 5 } },
+          { "label": "Ration water (free, short-term)", "effect": { "gold": 0, "mood": -3, "happiness": -3 } }
+        ]
+      }
+    },
+    {
+      "id": "plague_rats",
+      "name": "Plague of Rats",
+      "text": "🐀 Rats have infested the granary! Food stores are threatened.",
+      "chance": 0.025,
+      "type": "disaster",
+      "effect": { "gold": -30, "mood": -6, "happiness": -5 },
+      "choice": {
+        "prompt": "Deal with the rats?",
+        "options": [
+          { "label": "Hire exterminators (-120g)", "effect": { "gold": -120, "mood": 5, "happiness": 5 } },
+          { "label": "Release cats (free, partial)", "effect": { "gold": 0, "mood": 0 } }
+        ]
+      }
+    },
+    {
+      "id": "traveling_bard",
+      "name": "Famous Bard",
+      "text": "🎵 A renowned bard wants to perform in your town!",
+      "chance": 0.03,
+      "type": "opportunity",
+      "effect": { "gold": 0, "mood": 5 },
+      "choice": {
+        "prompt": "Host the bard?",
+        "options": [
+          { "label": "Host a concert (-100g, big morale)", "effect": { "gold": -100, "mood": 15, "happiness": 10 } },
+          { "label": "Let them busk (free, small boost)", "effect": { "gold": 0, "mood": 5, "happiness": 3 } },
+          { "label": "Turn them away", "effect": { "gold": 0, "mood": -3 } }
+        ]
+      }
+    },
+    {
+      "id": "tax_collectors",
+      "name": "Tax Collectors",
+      "text": "💰 Royal tax collectors have arrived!",
+      "chance": 0.04,
+      "type": "disaster",
+      "effect": { "gold": -150, "mood": -5 },
+      "choice": {
+        "prompt": "The crown demands its share.",
+        "options": [
+          { "label": "Pay in full (-150g)", "effect": { "gold": 0, "mood": 0 } },
+          { "label": "Negotiate (-80g, risk)", "effect": { "gold": -80, "mood": -3 } },
+          { "label": "Bribe them (-200g, future benefit)", "effect": { "gold": -200, "mood": 5 } }
+        ]
+      }
+    }
   ],
   "seasonal": {
     "Spring": [

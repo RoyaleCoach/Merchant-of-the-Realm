@@ -55,6 +55,10 @@ class GameState:
     npcs: list[dict] = field(default_factory=list)
     buildings: list[dict] = field(default_factory=list)
 
+    # Event choices awaiting player decision
+    pending_choices: list[dict] = field(default_factory=list)
+    pending_event_text: str = ""
+
     # Metadata
     last_played: str = ""
 
