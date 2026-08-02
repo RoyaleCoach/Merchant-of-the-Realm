@@ -2,8 +2,8 @@
   "project": "Merchant of the Realm",
   "version": "0.0.0",
   "phase": {
-    "current": 16,
-    "name": "Reputation System",
+    "current": 17,
+    "name": "Town Expansion",
     "status": "in_progress",
     "started": null,
     "completed": null
@@ -33,8 +33,8 @@
     { "id": 13, "name": "Citizens Simulation",  "status": "completed", "started": null, "completed": null },
     { "id": 14, "name": "Weather & Seasons",    "status": "completed", "started": null, "completed": "2026-08-02" },
     { "id": 15, "name": "Random Events",        "status": "completed", "started": "2026-08-02", "completed": "2026-08-02" },
-    { "id": 16, "name": "Reputation System",    "status": "in_progress", "started": "2026-08-02", "completed": null },
-    { "id": 17, "name": "Town Expansion",       "status": "pending",    "started": null, "completed": null },
+    { "id": 16, "name": "Reputation System",    "status": "completed", "started": "2026-08-02", "completed": "2026-08-02" },
+    { "id": 17, "name": "Town Expansion",       "status": "in_progress", "started": "2026-08-02", "completed": null },
     { "id": 18, "name": "Multi-Town Economy",   "status": "pending",    "started": null, "completed": null },
     { "id": 19, "name": "Caravan System",       "status": "pending",    "started": null, "completed": null },
     { "id": 20, "name": "Politics & Kingdom",   "status": "pending",    "started": null, "completed": null },
