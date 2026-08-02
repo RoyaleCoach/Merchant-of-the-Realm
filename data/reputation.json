@@ -1,0 +1,103 @@
+{
+  "description": "Player reputation system. Earn reputation through trading, events, and town prosperity.",
+  "ranks": [
+    {
+      "id": "unknown",
+      "name": "Unknown Merchant",
+      "threshold": 0,
+      "icon": "🔰",
+      "perks": {
+        "buy_discount": 0,
+        "sell_bonus": 0,
+        "npc_quality": 0,
+        "description": "A newcomer. No special treatment."
+      }
+    },
+    {
+      "id": "trader",
+      "name": "Trader",
+      "threshold": 25,
+      "icon": "📦",
+      "perks": {
+        "buy_discount": 5,
+        "sell_bonus": 5,
+        "npc_quality": 1,
+        "description": "Known in the market. Small price improvements."
+      }
+    },
+    {
+      "id": "guild_member",
+      "name": "Guild Member",
+      "threshold": 75,
+      "icon": "🏅",
+      "perks": {
+        "buy_discount": 10,
+        "sell_bonus": 10,
+        "npc_quality": 2,
+        "description": "Guild membership unlocks better deals and workers."
+      }
+    },
+    {
+      "id": "guild_master",
+      "name": "Guild Master",
+      "threshold": 150,
+      "icon": "⚔️",
+      "perks": {
+        "buy_discount": 15,
+        "sell_bonus": 15,
+        "npc_quality": 3,
+        "description": "Lead the guild. Access to royal contracts."
+      }
+    },
+    {
+      "id": "royal_supplier",
+      "name": "Royal Supplier",
+      "threshold": 300,
+      "icon": "👑",
+      "perks": {
+        "buy_discount": 20,
+        "sell_bonus": 20,
+        "npc_quality": 4,
+        "description": "The crown itself buys from you. Exclusive items unlocked."
+      }
+    },
+    {
+      "id": "merchant_lord",
+      "name": "Merchant Lord",
+      "threshold": 500,
+      "icon": "🏰",
+      "perks": {
+        "buy_discount": 25,
+        "sell_bonus": 25,
+        "npc_quality": 5,
+        "description": "Your name echoes across the realm. The best flock to you."
+      }
+    },
+    {
+      "id": "merchant_king",
+      "name": "Merchant King",
+      "threshold": 1000,
+      "icon": "💎",
+      "perks": {
+        "buy_discount": 30,
+        "sell_bonus": 30,
+        "npc_quality": 6,
+        "description": "The pinnacle of commerce. Kings seek your counsel."
+      }
+    }
+  ],
+  "sources": {
+    "trade_profit": { "rep": 1, "description": "Per 100g profit from selling" },
+    "building_built": { "rep": 5, "description": "Constructing a new building" },
+    "building_upgraded": { "rep": 3, "description": "Upgrading a building" },
+    "event_choice_good": { "rep": 5, "description": "Making a positive event choice" },
+    "event_choice_bad": { "rep": -5, "description": "Making a selfish event choice" },
+    "town_growth_50": { "rep": 10, "description": "Town grows by 50 population" },
+    "town_growth_100": { "rep": 20, "description": "Town grows by 100 population" },
+    "royal_contract": { "rep": 25, "description": "Completing a royal contract" },
+    "festival_sponsor": { "rep": 8, "description": "Sponsoring a festival" },
+    "fire_help": { "rep": 5, "description": "Helping fight a fire" },
+    "disease_help": { "rep": 8, "description": "Funding disease treatment" },
+    "crime_high": { "rep": -2, "description": "Per day with crime above 50" }
+  }
+}

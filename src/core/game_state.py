@@ -27,6 +27,7 @@ class GameState:
 
     # Economy
     gold: int = 0
+    reputation: int = 0  # 0+, player standing in the realm
 
     # Player
     player_name: str = ""

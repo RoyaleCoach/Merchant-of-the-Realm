@@ -14,6 +14,7 @@ from src.systems.daily_updates import (
 )
 from src.systems.season_effects import roll_season_event
 from src.systems.event_engine import roll_daily_event, roll_major_event
+from src.systems.reputation import daily_reputation_tick, add_reputation
 from src.systems.workforce import pay_workers, update_worker_stats
 from src.systems.citizens import process_daily_citizens
 
@@ -93,5 +94,13 @@ def tick(state: GameState) -> list[str]:
     else:
         messages.append(payroll_msg)  # includes warning if unpaid
 
-    log.info(f"Tick: {state.date_string} | Weather: {state.weather} | Gold: {state.gold}")
+    # Daily reputation changes (crime penalty, etc.)
+    rep_change = daily_reputation_tick(state)
+    if rep_change != 0:
+        # Check for rank change
+        new_rep, new_rank = add_reputation(state, 0)  # just to check rank
+        if new_rank:
+            messages.append(f"⭐ Rank up! You are now a [yellow]{new_rank['name']}[/yellow] {new_rank['icon']}")
+
+    log.info(f"Tick: {state.date_string} | Weather: {state.weather} | Gold: {state.gold} | Rep: {state.reputation}")
     return messages

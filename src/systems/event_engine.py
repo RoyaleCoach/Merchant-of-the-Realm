@@ -5,6 +5,7 @@ import random
 from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.utils.data_loader import load_data
+from src.systems.reputation import add_reputation
 
 log = get_logger(__name__)
 
@@ -64,9 +65,15 @@ def roll_major_event(state: GameState) -> tuple[str | None, list[dict]]:
     return event["text"], choices
 
 
-def resolve_choice(state: GameState, choice_effect: dict) -> None:
+def resolve_choice(state: GameState, choice_effect: dict, choice_label: str = "") -> None:
     """Apply the effects of a player's choice."""
     _apply_event_effects(state, choice_effect)
+
+    # Award reputation for generous/positive choices
+    if "happiness" in choice_effect and choice_effect["happiness"] > 0:
+        add_reputation(state, 5, "positive event choice")
+    elif "crime" in choice_effect and choice_effect["crime"] > 0:
+        add_reputation(state, -5, "selfish event choice")
 
 
 def _apply_event_effects(state: GameState, effect: dict) -> None:

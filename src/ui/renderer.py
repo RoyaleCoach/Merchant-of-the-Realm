@@ -83,6 +83,7 @@ def show_help():
     table.add_row("citizens (civ)", "View population, happiness, crime, needs")
     table.add_row("weather (w)", "View current weather, season, and effects")
     table.add_row("events (ev)", "View event history and statistics")
+    table.add_row("reputation (rep)", "View rank, perks, and progress")
     table.add_row("choose <n>", "Make a choice during a major event")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
@@ -113,6 +114,11 @@ def show_status(state: GameState):
     table.add_row("Market Items", str(len(state.market)))
     table.add_row("NPCs", str(len(state.npcs)))
     table.add_row("Buildings", str(len(state.buildings)))
+
+    # Reputation rank
+    from src.systems.reputation import get_current_rank
+    rank = get_current_rank(state.reputation)
+    table.add_row("Reputation", f"{rank['icon']} {rank['name']} ({state.reputation} rep)")
     console.print(table)
 
 
@@ -869,6 +875,63 @@ def show_event_log(log: list[dict], summary: dict):
         )
 
     console.print(table)
+
+
+def show_reputation(rep: int, progress: dict, buy_disc: float, sell_bonus: float):
+    """Display reputation rank, progress, and perks."""
+    current = progress["current"]
+    next_rank = progress["next"]
+
+    # Header with rank
+    console.print(Panel(
+        f"{current['icon']} [bold]{current['name']}[/bold]"
+        f"\n[dim]{current['perks']['description']}[/dim]",
+        title="[bold]⭐ Reputation[/bold]",
+        border_style="yellow",
+    ))
+
+    # Progress bar to next rank
+    if next_rank:
+        bar_filled = progress["progress"] // 5
+        bar_empty = 20 - bar_filled
+        bar = "█" * bar_filled + "░" * bar_empty
+        console.print(
+            f"  Next: [cyan]{next_rank['icon']} {next_rank['name']}[/cyan] "
+            f"({progress['remaining']} rep needed)"
+        )
+        console.print(f"  [green]{bar}[/green] {progress['progress']}%")
+    else:
+        console.print("  [green]Maximum rank achieved! 💎[/green]")
+
+    console.print()
+
+    # Perks table
+    table = Table(title="[bold]Current Perks[/bold]", border_style="dim")
+    table.add_column("Perk", style="cyan")
+    table.add_column("Value", justify="right")
+    table.add_row("Buy Discount", f"[green]-{int(buy_disc * 100)}%[/green]")
+    table.add_row("Sell Bonus", f"[green]+{int(sell_bonus * 100)}%[/green]")
+    table.add_row("NPC Quality Bonus", f"+{current['perks']['npc_quality']}")
+    console.print(table)
+
+    # All ranks
+    rank_table = Table(title="[bold]All Ranks[/bold]", border_style="dim")
+    rank_table.add_column("Rank", style="cyan")
+    rank_table.add_column("Threshold", justify="right")
+    rank_table.add_column("Perks", style="dim")
+    from src.systems.reputation import get_ranks
+    for r in get_ranks():
+        if r["id"] == current["id"]:
+            marker = "[green]▶[/green]"
+        else:
+            marker = " "
+        perks = f"-{r['perks']['buy_discount']}%/+{r['perks']['sell_bonus']}%"
+        rank_table.add_row(
+            f"{marker} {r['icon']} {r['name']}",
+            f"{r['threshold']} rep",
+            perks,
+        )
+    console.print(rank_table)
 
 
 def show_goodbye():

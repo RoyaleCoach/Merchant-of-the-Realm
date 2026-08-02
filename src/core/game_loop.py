@@ -9,6 +9,7 @@ from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
 from src.systems.season_effects import get_active_effects, roll_season_event
 from src.systems.event_engine import resolve_choice, get_event_log, get_event_summary
+from src.systems.reputation import get_rank_progress, get_current_rank, get_buy_discount, get_sell_bonus
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
@@ -225,6 +226,13 @@ def run_game_loop(state: GameState):
                 summary = get_event_summary()
                 show_event_log(log, summary)
 
+            case "reputation" | "rep":
+                from src.ui.renderer import show_reputation
+                progress = get_rank_progress(state.reputation)
+                buy_disc = get_buy_discount(state)
+                sell_bonus = get_sell_bonus(state)
+                show_reputation(state.reputation, progress, buy_disc, sell_bonus)
+
             case "choose":
                 if not state.pending_choices:
                     console.print("[dim]No pending choices.[/dim]")
@@ -233,7 +241,7 @@ def run_game_loop(state: GameState):
                         idx = int(cmd.args[0]) - 1
                         if 0 <= idx < len(state.pending_choices):
                             choice = state.pending_choices[idx]
-                            resolve_choice(state, choice["effect"])
+                            resolve_choice(state, choice["effect"], choice["label"])
                             console.print(f"[green]Chose: {choice['label']}[/green]")
                             state.pending_choices = []
                         else:

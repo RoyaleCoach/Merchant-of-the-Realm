@@ -3,6 +3,7 @@
 from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.utils.data_loader import get_item
+from src.systems.reputation import get_effective_buy_price, get_effective_sell_price, add_reputation
 
 log = get_logger(__name__)
 
@@ -65,8 +66,9 @@ def buy(state: GameState, item_id: str, quantity: int) -> str:
     if market_item["supply"] < quantity:
         return f"Not enough {market_item['name']} in stock. Available: {market_item['supply']}."
 
-    # Calculate cost
-    cost = market_item["current_price"] * quantity
+    # Calculate cost (with reputation discount)
+    unit_price = get_effective_buy_price(state, market_item["current_price"])
+    cost = unit_price * quantity
     if state.gold < cost:
         return f"Not enough gold. Need {cost}g, have {state.gold}g."
 
@@ -81,7 +83,15 @@ def buy(state: GameState, item_id: str, quantity: int) -> str:
     market_item["supply"] -= quantity
     _add_to_inventory(state.inventory, item_id, market_item["name"], quantity, weight)
 
-    log.info(f"Bought {quantity}x {market_item['name']} for {cost}g")
+    # Earn reputation from trading
+    profit_value = (market_item["current_price"] - unit_price) * quantity
+    if profit_value >= 50:
+        add_reputation(state, 1, "trade discount saved gold")
+
+    saved = (market_item["current_price"] * quantity) - cost
+    log.info(f"Bought {quantity}x {market_item['name']} for {cost}g (saved {saved}g)")
+    if saved > 0:
+        return f"Bought {quantity}x {market_item['name']} for {cost}g (saved {saved}g with reputation)."
     return f"Bought {quantity}x {market_item['name']} for {cost}g."
 
 
@@ -112,15 +122,22 @@ def sell(state: GameState, item_id: str, quantity: int) -> str:
     if market_item is None:
         return f"No market for '{item_id}'."
 
-    # Execute transaction (sell at 90% of market price)
-    price = max(1, int(market_item["current_price"] * 0.9))
+    # Execute transaction (sell at 90% of market price, plus reputation bonus)
+    base_sell = max(1, int(market_item["current_price"] * 0.9))
+    price = get_effective_sell_price(state, base_sell)
     revenue = price * quantity
     state.gold += revenue
     market_item["supply"] += quantity
     _remove_from_inventory(state.inventory, item_id, quantity)
 
+    # Earn reputation from profitable trades
+    profit = revenue - (base_sell * quantity)
+    if revenue >= 100:
+        add_reputation(state, 1, "profitable trade")
+
+    bonus_str = f" (+{profit}g reputation bonus)" if profit > 0 else ""
     log.info(f"Sold {quantity}x {inv_item['name']} for {revenue}g")
-    return f"Sold {quantity}x {inv_item['name']} for {revenue}g ({price}g each)."
+    return f"Sold {quantity}x {inv_item['name']} for {revenue}g ({price}g each).{bonus_str}"
 
 
 def deposit(state: GameState, item_id: str, quantity: int) -> str:

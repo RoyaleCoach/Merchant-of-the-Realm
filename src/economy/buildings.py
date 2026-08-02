@@ -3,6 +3,7 @@
 from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.utils.data_loader import get_all_buildings, get_building
+from src.systems.reputation import add_reputation
 
 log = get_logger(__name__)
 
@@ -77,6 +78,9 @@ def build(state: GameState, building_id: str) -> str:
         "max_workers": bdata["max_workers"],
     })
 
+    # Earn reputation for building
+    add_reputation(state, 5, f"built {bdata['name']}")
+
     log.info(f"Built {bdata['name']} for {cost}g")
     return f"Constructed {bdata['name']} for {cost}g. Hire workers to start production."
 
@@ -103,6 +107,9 @@ def upgrade(state: GameState, building_id: str) -> str:
             if bdata:
                 # Increase max workers by the building's base max_workers
                 b["max_workers"] = bdata["max_workers"] * b["level"]
+
+            # Earn reputation for upgrading
+            add_reputation(state, 3, f"upgraded {b['name']}")
 
             log.info(f"Upgraded {b['name']} to level {b['level']} for {cost}g")
             return f"Upgraded {b['name']} to level {b['level']} for {cost}g. Max workers: {b['max_workers']}."
