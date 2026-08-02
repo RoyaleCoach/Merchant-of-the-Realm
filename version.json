@@ -1,0 +1,55 @@
+{
+  "project": "Merchant of the Realm",
+  "version": "0.0.0",
+  "phase": {
+    "current": 0,
+    "name": "Project Foundation",
+    "status": "in_progress",
+    "started": null,
+    "completed": null
+  },
+  "milestones": {
+    "mvp_v01":     { "phase": 7,  "name": "MVP v0.1",     "status": "pending" },
+    "alpha_v02":   { "phase": 9,  "name": "Alpha v0.2",   "status": "pending" },
+    "alpha_v03":   { "phase": 11, "name": "Alpha v0.3",   "status": "pending" },
+    "beta_v04":    { "phase": 14, "name": "Beta v0.4",    "status": "pending" },
+    "beta_v05":    { "phase": 18, "name": "Beta v0.5",    "status": "pending" },
+    "release_v10": { "phase": 23, "name": "Release v1.0", "status": "pending" }
+  },
+  "phases": [
+    { "id": 0,  "name": "Project Foundation",   "status": "in_progress", "started": null, "completed": null },
+    { "id": 1,  "name": "Core Engine",          "status": "pending",    "started": null, "completed": null },
+    { "id": 2,  "name": "World Generation",     "status": "pending",    "started": null, "completed": null },
+    { "id": 3,  "name": "Calendar & Time",      "status": "pending",    "started": null, "completed": null },
+    { "id": 4,  "name": "Data Database (JSON)", "status": "pending",    "started": null, "completed": null },
+    { "id": 5,  "name": "Economy Engine",       "status": "pending",    "started": null, "completed": null },
+    { "id": 6,  "name": "Inventory System",     "status": "pending",    "started": null, "completed": null },
+    { "id": 7,  "name": "Trading System",       "status": "pending",    "started": null, "completed": null },
+    { "id": 8,  "name": "Building System",      "status": "pending",    "started": null, "completed": null },
+    { "id": 9,  "name": "Production System",    "status": "pending",    "started": null, "completed": null },
+    { "id": 10, "name": "NPC System",           "status": "pending",    "started": null, "completed": null },
+    { "id": 11, "name": "Workforce",            "status": "pending",    "started": null, "completed": null },
+    { "id": 12, "name": "Supply Chain",         "status": "pending",    "started": null, "completed": null },
+    { "id": 13, "name": "Citizens Simulation",  "status": "pending",    "started": null, "completed": null },
+    { "id": 14, "name": "Weather & Seasons",    "status": "pending",    "started": null, "completed": null },
+    { "id": 15, "name": "Random Events",        "status": "pending",    "started": null, "completed": null },
+    { "id": 16, "name": "Reputation System",    "status": "pending",    "started": null, "completed": null },
+    { "id": 17, "name": "Town Expansion",       "status": "pending",    "started": null, "completed": null },
+    { "id": 18, "name": "Multi-Town Economy",   "status": "pending",    "started": null, "completed": null },
+    { "id": 19, "name": "Caravan System",       "status": "pending",    "started": null, "completed": null },
+    { "id": 20, "name": "Politics & Kingdom",   "status": "pending",    "started": null, "completed": null },
+    { "id": 21, "name": "Advanced Economy",     "status": "pending",    "started": null, "completed": null },
+    { "id": 22, "name": "AI Competitors",       "status": "pending",    "started": null, "completed": null },
+    { "id": 23, "name": "Endgame",              "status": "pending",    "started": null, "completed": null },
+    { "id": 24, "name": "Polish",               "status": "pending",    "started": null, "completed": null }
+  ],
+  "stack": {
+    "language": "Python 3.13+",
+    "cli": "Typer + Rich",
+    "data": "JSON",
+    "architecture": "Clean Architecture"
+  },
+  "workflow_doc": "workflow.md",
+  "created": "2026-08-02",
+  "updated": "2026-08-02"
+}
