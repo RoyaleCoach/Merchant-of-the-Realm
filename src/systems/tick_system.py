@@ -13,6 +13,7 @@ from src.systems.daily_updates import (
     get_weather_mod,
     get_mood_mod,
 )
+from src.systems.season_effects import roll_season_event
 from src.systems.workforce import pay_workers, update_worker_stats
 from src.systems.citizens import process_daily_citizens
 
@@ -35,6 +36,10 @@ def tick(state: GameState) -> list[str]:
     if is_season_start(state):
         seasonal = roll_seasonal_events(state)
         messages.extend(seasonal)
+        # Flavor event from season effects
+        flavor = roll_season_event(state)
+        if flavor:
+            messages.append(flavor)
 
     # Weather update
     weather_msg = update_weather(state)

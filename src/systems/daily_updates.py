@@ -5,6 +5,7 @@ import random
 from src.core.game_state import GameState
 from src.core.logger import get_logger
 from src.utils.data_loader import load_data
+from src.systems.season_effects import get_season_modifier, get_category_for_item
 
 log = get_logger(__name__)
 
@@ -21,8 +22,10 @@ def update_economy(state: GameState, weather_mod: float) -> list[str]:
         item["supply"] = max(0, item["supply"] + random.randint(-5, 5))
         item["demand"] = max(0, item["demand"] + random.randint(-5, 5))
 
-        # Production adds to supply
-        production = int(item.get("production_rate", 30) * weather_mod)
+        # Production adds to supply (weather * season modifier)
+        category = item.get("category", "general")
+        season_mod = get_season_modifier(state.season, category)
+        production = int(item.get("production_rate", 30) * weather_mod * season_mod)
         item["supply"] += production
 
         # Consumption reduces supply, increases demand pressure
@@ -74,7 +77,11 @@ def update_production(state: GameState, weather_mod: float) -> list[str]:
         from src.systems.workforce import get_worker_modifier
         worker_mod = get_worker_modifier(state, b["building_id"])
         worker_ratio = b["workers"] / max(b["max_workers"], 1)
-        output = int(10 * worker_ratio * weather_mod * b["level"] * worker_mod)
+
+        # Apply season modifier based on what the building produces
+        category = get_category_for_item(state, produces)
+        season_mod = get_season_modifier(state.season, category)
+        output = int(10 * worker_ratio * weather_mod * season_mod * b["level"] * worker_mod)
 
         if output > 0:
             # Find market item name

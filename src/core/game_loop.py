@@ -7,6 +7,7 @@ from src.core.save_manager import save_game, load_game, list_saves
 from src.systems.tick_system import tick
 from src.systems.production import generate_production_report
 from src.systems.daily_updates import get_weather_mod
+from src.systems.season_effects import get_active_effects, roll_season_event
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
@@ -25,7 +26,7 @@ from src.ui.renderer import (
     show_building_info, show_constructible,
     show_production_report, show_npc_detail,
     show_workforce_summary, show_workers,
-    show_supply_chains, show_citizens, console,
+    show_supply_chains, show_citizens, show_weather, console,
 )
 from src.world.generator import generate_world
 
@@ -212,6 +213,10 @@ def run_game_loop(state: GameState):
             case "citizens" | "civ":
                 status = get_citizen_status(state)
                 show_citizens(status)
+
+            case "weather" | "w":
+                effects = get_active_effects(state)
+                show_weather(state, effects)
 
             case "inventory" | "inv":
                 show_inventory(state)

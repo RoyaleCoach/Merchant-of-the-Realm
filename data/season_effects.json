@@ -1,0 +1,69 @@
+{
+  "description": "Seasonal production modifiers by item category. Multiplies base production_rate.",
+  "seasons": {
+    "Spring": {
+      "icon": "🌸",
+      "description": "Planting season. Farms flourish, moderate output across the board.",
+      "modifiers": {
+        "food": 1.3,
+        "material": 1.0,
+        "luxury": 1.0,
+        "good": 1.0
+      },
+      "events": [
+        "Spring planting begins! Farms are extra productive.",
+        "The annual Spring Fair draws visitors to town.",
+        "Heavy rains water the fields.",
+        "Seed merchants offer discounts to farmers."
+      ]
+    },
+    "Summer": {
+      "icon": "☀️",
+      "description": "Peak growing season. Bountiful harvests, but some materials suffer in heat.",
+      "modifiers": {
+        "food": 1.4,
+        "material": 0.9,
+        "luxury": 1.2,
+        "good": 1.0
+      },
+      "events": [
+        "Harvest season! The fields are golden.",
+        "A heatwave wilts some crops but ripens fruit.",
+        "Long working hours boost production.",
+        "Tourists flock to the vineyards."
+      ]
+    },
+    "Autumn": {
+      "icon": "🍂",
+      "description": "Harvest festival. Materials stockpile, food production tapers.",
+      "modifiers": {
+        "food": 1.1,
+        "material": 1.3,
+        "luxury": 1.1,
+        "good": 1.1
+      },
+      "events": [
+        "Autumn markets overflow with goods.",
+        "Early frost threatens the harvest.",
+        "Woodcutters stockpile for winter.",
+        "Harvest festival boosts morale."
+      ]
+    },
+    "Winter": {
+      "icon": "❄️",
+      "description": "Harsh conditions. Food production plummets, wood demand surges for heating.",
+      "modifiers": {
+        "food": 0.6,
+        "material": 1.2,
+        "luxury": 0.8,
+        "good": 0.9
+      },
+      "events": [
+        "Winter stores are full. The town is prepared.",
+        "A harsh blizzard isolates the town.",
+        "Wood demand surges for heating.",
+        "Ice blocks the river — fisheries halt."
+      ]
+    }
+  }
+}

@@ -37,9 +37,11 @@ def show_game_header(state: GameState):
     header = Table(show_header=False, box=None, expand=True)
     header.add_column("Left", style="cyan")
     header.add_column("Right", style="yellow", justify="right")
+    from src.systems.season_effects import get_season_icon
+    season_icon = get_season_icon(state.season)
     header.add_row(
         f"🏰 {state.town_name}, {state.kingdom_name}",
-        f"💰 {state.gold}g  🎒 {state.inventory_weight}/{state.inventory_capacity}  👥 {state.population}  😊{state.happiness}  {state.short_date}  {state.weather}",
+        f"💰 {state.gold}g  🎒 {state.inventory_weight}/{state.inventory_capacity}  👥 {state.population}  😊{state.happiness}  {state.short_date}  {season_icon}{state.season[:3]}  {state.weather}",
     )
     console.print(header)
 
@@ -79,6 +81,7 @@ def show_help():
     table.add_row("production (prod)", "View daily production report")
     table.add_row("supply", "View supply chain status & bottlenecks")
     table.add_row("citizens (civ)", "View population, happiness, crime, needs")
+    table.add_row("weather (w)", "View current weather, season, and effects")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
     table.add_row("buy <item> <qty>", "Buy items from the market")
@@ -731,6 +734,94 @@ def show_citizens(status: dict):
     else:
         avg_style = "red"
     console.print(f"[dim]Average fulfillment: [{avg_style}]{avg:.0f}%[/{avg_style}][/dim]")
+
+
+def show_weather(state: GameState, effects: list[dict]):
+    """Display current weather, season, and active effects."""
+    from src.systems.season_effects import get_season_icon, get_season_description
+
+    season_icon = get_season_icon(state.season)
+    season_desc = get_season_description(state.season)
+
+    # Header: season + weather
+    console.print(Panel(
+        f"{season_icon} [bold]{state.season}[/bold] — {state.weather} {_weather_icon(state)}"
+        f"\n[dim]{season_desc}[/dim]",
+        title="[bold]🌤️ Weather & Seasons[/bold]",
+        border_style="yellow",
+    ))
+
+    # Active effects table
+    if effects:
+        table = Table(title="[bold]Active Effects[/bold]", border_style="dim")
+        table.add_column("Type", style="cyan", width=10)
+        table.add_column("Name", width=14)
+        table.add_column("Description")
+
+        for eff in effects:
+            if eff["type"] == "season":
+                # Show per-category modifiers
+                mods = eff.get("modifiers", {})
+                mod_strs = []
+                for cat, val in mods.items():
+                    if val > 1.0:
+                        mod_strs.append(f"[green]{cat}: +{int((val-1)*100)}%[/green]")
+                    elif val < 1.0:
+                        mod_strs.append(f"[red]{cat}: {int((val-1)*100)}%[/red]")
+                    else:
+                        mod_strs.append(f"{cat}: —")
+                table.add_row(
+                    eff["icon"] + " Season",
+                    eff["name"],
+                    " | ".join(mod_strs),
+                )
+            elif eff["type"] == "weather":
+                prod = eff.get("production_mod", 1.0)
+                mood = eff.get("mood_mod", 0)
+                parts = []
+                if prod != 1.0:
+                    if prod > 1.0:
+                        parts.append(f"[green]Production +{int((prod-1)*100)}%[/green]")
+                    else:
+                        parts.append(f"[red]Production {int((prod-1)*100)}%[/red]")
+                if mood != 0:
+                    if mood > 0:
+                        parts.append(f"[green]Mood +{mood}[/green]")
+                    else:
+                        parts.append(f"[red]Mood {mood}[/red]")
+                if not parts:
+                    parts.append("[dim]No effect[/dim]")
+                table.add_row(
+                    eff["icon"] + " Weather",
+                    eff["name"],
+                    ", ".join(parts),
+                )
+
+        console.print(table)
+
+    # Calendar reminder
+    days_left = _days_until_season_end(state)
+    console.print(f"[dim]{days_left} days remaining in {state.season}.[/dim]")
+
+
+def _weather_icon(state: GameState) -> str:
+    """Get the icon for current weather."""
+    from src.utils.data_loader import load_data
+    weather_data = load_data("weather.json")
+    for wt in weather_data.get("types", []):
+        if wt["name"] == state.weather:
+            return wt.get("icon", "")
+    return ""
+
+
+def _days_until_season_end(state: GameState) -> int:
+    """Calculate days remaining in the current season."""
+    # Each season = 3 months * 4 weeks * 7 days = 84 days
+    days_per_season = GameState.DAYS_PER_WEEK * GameState.WEEKS_PER_MONTH * GameState.MONTHS_PER_SEASON
+    day_of_season = ((state.month - 1) * GameState.WEEKS_PER_MONTH * GameState.DAYS_PER_WEEK +
+                     (state.week - 1) * GameState.DAYS_PER_WEEK +
+                     (state.day - 1))
+    return days_per_season - day_of_season
 
 
 def show_goodbye():
