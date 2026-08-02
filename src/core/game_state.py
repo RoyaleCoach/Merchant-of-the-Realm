@@ -57,6 +57,10 @@ class GameState:
     npcs: list[dict] = field(default_factory=list)
     buildings: list[dict] = field(default_factory=list)
 
+    # Multi-town economy
+    neighboring_towns: list[dict] = field(default_factory=list)
+    current_town: str = ""  # empty = home town
+
     # Event choices awaiting player decision
     pending_choices: list[dict] = field(default_factory=list)
     pending_event_text: str = ""

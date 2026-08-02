@@ -16,6 +16,7 @@ from src.systems.season_effects import roll_season_event
 from src.systems.event_engine import roll_daily_event, roll_major_event
 from src.systems.reputation import daily_reputation_tick
 from src.systems.town_expansion import check_promotion, get_migration_bonus
+from src.systems.multi_town import update_foreign_markets
 from src.systems.workforce import pay_workers, update_worker_stats
 from src.systems.citizens import process_daily_citizens
 
@@ -99,6 +100,10 @@ def tick(state: GameState) -> list[str]:
     rep_change = daily_reputation_tick(state)
     if rep_change != 0:
         messages.append(f"  Reputation: {rep_change:+d} (high crime hurts your standing)")
+
+    # Update neighboring town markets
+    if state.neighboring_towns:
+        update_foreign_markets(state)
 
     # Town expansion check
     new_tier, promo_msg = check_promotion(state)

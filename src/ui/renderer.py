@@ -85,6 +85,10 @@ def show_help():
     table.add_row("events (ev)", "View event history and statistics")
     table.add_row("reputation (rep)", "View rank, perks, and progress")
     table.add_row("town (tier)", "View town tier, expansion, and building unlocks")
+    table.add_row("towns", "List neighboring towns")
+    table.add_row("travel <town>", "Travel to a neighboring town (costs 1 day)")
+    table.add_row("arbitrage [town]", "View profitable trade routes")
+    table.add_row("return (home)", "Return to your home town")
     table.add_row("choose <n>", "Make a choice during a major event")
     table.add_row("inventory (inv)", "View your inventory")
     table.add_row("warehouse (wh)", "View warehouse contents")
@@ -996,6 +1000,115 @@ def show_town(state: GameState, progress: dict, unlocked: list[str]):
             unlock_table.add_row("✗", f"[dim]{bdata['name']}[/dim]", f"[dim]{bdata['cost']}g[/dim]", "[dim]Locked — expand town[/dim]")
 
     console.print(unlock_table)
+
+
+def show_towns_list(state: GameState):
+    """Display neighboring towns."""
+    if not state.neighboring_towns:
+        console.print("[dim]No neighboring towns discovered yet.[/dim]")
+        return
+
+    table = Table(title="[bold]🏘️ Neighboring Towns[/bold]", border_style="yellow")
+    table.add_column("", width=4)
+    table.add_column("Town", style="cyan")
+    table.add_column("Specialty", style="green")
+    table.add_column("Population", justify="right")
+    table.add_column("Description", style="dim")
+
+    for town in state.neighboring_towns:
+        visited = "✓" if town.get("visited") else " "
+        table.add_row(
+            f"{town['icon']} {visited}",
+            town["name"],
+            town.get("specialty", "—").capitalize(),
+            str(town["population"]),
+            town.get("description", ""),
+        )
+
+    console.print(table)
+    console.print("[dim]Use 'travel <town_id>' to visit. 'arbitrage <town_id>' for trade routes.[/dim]")
+
+
+def show_arbitrage(state: GameState, town_id: str, ops: list[dict]):
+    """Display arbitrage opportunities with a specific town."""
+    town_name = town_id
+    for t in state.neighboring_towns:
+        if t["id"] == town_id:
+            town_name = f"{t['icon']} {t['name']}"
+            break
+
+    table = Table(
+        title=f"[bold]📊 Arbitrage: {state.town_name} ↔ {town_name}[/bold]",
+        border_style="yellow",
+    )
+    table.add_column("Item", style="cyan")
+    table.add_column("Route", style="dim", width=12)
+    table.add_column("Buy", justify="right", style="green")
+    table.add_column("Sell", justify="right", style="yellow")
+    table.add_column("Margin", justify="right")
+
+    for op in ops:
+        if op["direction"] == "export":
+            route = f"→ {op['foreign_town'][:8]}"
+            margin_style = "green"
+        else:
+            route = f"← {op['foreign_town'][:8]}"
+            margin_style = "blue"
+
+        table.add_row(
+            op["name"],
+            route,
+            f"{op['buy_price']}g",
+            f"{op['sell_price']}g",
+            f"[{margin_style}]+{op['margin_pct']}%[/{margin_style}]",
+        )
+
+    console.print(table)
+    console.print("[dim]Buy low in one town, sell high in the other for profit.[/dim]")
+
+
+def show_all_arbitrage(state: GameState):
+    """Display best arbitrage opportunities across all towns."""
+    from src.systems.multi_town import get_arbitrage_opportunities
+    all_ops = []
+    for town in state.neighboring_towns:
+        ops = get_arbitrage_opportunities(state, town["id"])
+        all_ops.extend(ops)
+
+    if not all_ops:
+        console.print("[dim]No arbitrage opportunities found. Try again later.[/dim]")
+        return
+
+    all_ops.sort(key=lambda x: x["margin_pct"], reverse=True)
+
+    table = Table(
+        title="[bold]📊 Best Trade Routes[/bold]",
+        border_style="yellow",
+    )
+    table.add_column("Item", style="cyan")
+    table.add_column("Route", style="dim")
+    table.add_column("Buy", justify="right", style="green")
+    table.add_column("Sell", justify="right", style="yellow")
+    table.add_column("Margin", justify="right")
+
+    for op in all_ops[:15]:
+        if op["direction"] == "export":
+            route = f"Home → {op['foreign_town']}"
+            margin_style = "green"
+        else:
+            route = f"{op['foreign_town']} → Home"
+            margin_style = "blue"
+
+        table.add_row(
+            op["name"],
+            route,
+            f"{op['buy_price']}g",
+            f"{op['sell_price']}g",
+            f"[{margin_style}]+{op['margin_pct']}%[/{margin_style}]",
+        )
+
+    console.print(table)
+    console.print("[dim]Buy low in one town, sell high in the other for profit.[/dim]")
 
 
 def show_goodbye():

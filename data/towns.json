@@ -1,0 +1,83 @@
+{
+  "description": "Neighboring towns with unique economies. Each has different resources, prices, and demand.",
+  "towns": [
+    {
+      "id": "riverhold",
+      "name": "Riverhold",
+      "description": "A riverside town known for fishing and trade.",
+      "population": 800,
+      "specialty": "fish",
+      "abundant": ["fish", "salt"],
+      "scarce": ["wood", "iron"],
+      "price_modifiers": {
+        "fish": 0.6,
+        "salt": 0.7,
+        "wood": 1.5,
+        "iron": 1.6,
+        "bread": 1.2,
+        "wheat": 1.1
+      },
+      "demand_focus": ["tools", "cloth", "wine"],
+      "icon": "🌊"
+    },
+    {
+      "id": "stoneford",
+      "name": "Stoneford",
+      "description": "A mining town rich in ore and stone.",
+      "population": 600,
+      "specialty": "iron",
+      "abundant": ["iron", "tools"],
+      "scarce": ["fish", "wheat", "bread"],
+      "price_modifiers": {
+        "iron": 0.5,
+        "tools": 0.7,
+        "fish": 1.8,
+        "wheat": 1.5,
+        "bread": 1.6,
+        "wine": 1.3
+      },
+      "demand_focus": ["food", "cloth", "ale"],
+      "icon": "⛏️"
+    },
+    {
+      "id": "westport",
+      "name": "Westport",
+      "description": "A coastal trading hub with luxury goods.",
+      "population": 1200,
+      "specialty": "luxury",
+      "abundant": ["wine", "cloth", "leather"],
+      "scarce": ["wood", "iron", "tools"],
+      "price_modifiers": {
+        "wine": 0.6,
+        "cloth": 0.7,
+        "leather": 0.8,
+        "wood": 1.7,
+        "iron": 1.8,
+        "tools": 1.5,
+        "fish": 1.2
+      },
+      "demand_focus": ["iron", "tools", "wood"],
+      "icon": "⚓"
+    },
+    {
+      "id": "greenwood",
+      "name": "Greenwood",
+      "description": "A forest settlement rich in timber and game.",
+      "population": 450,
+      "specialty": "wood",
+      "abundant": ["wood", "meat", "leather"],
+      "scarce": ["iron", "tools", "cloth"],
+      "price_modifiers": {
+        "wood": 0.5,
+        "meat": 0.7,
+        "leather": 0.8,
+        "iron": 1.9,
+        "tools": 1.7,
+        "cloth": 1.5,
+        "wine": 1.3
+      },
+      "demand_focus": ["tools", "cloth", "salt"],
+      "icon": "🌲"
+    }
+  ]
+}

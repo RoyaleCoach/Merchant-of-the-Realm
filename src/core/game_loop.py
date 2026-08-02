@@ -11,6 +11,11 @@ from src.systems.season_effects import get_active_effects, roll_season_event
 from src.systems.event_engine import resolve_choice, get_event_log, get_event_summary
 from src.systems.reputation import get_rank_progress, get_current_rank, get_buy_discount, get_sell_bonus
 from src.systems.town_expansion import get_tier_progress, get_current_tier, get_all_unlocked_buildings
+from src.systems.multi_town import (
+    get_town_definitions, get_arbitrage_opportunities,
+    travel_to_town, return_home, is_abroad, get_current_town_info,
+    get_town_market, get_town_by_id,
+)
 from src.systems.supply_chain import analyze_supply_chain, get_chain_summary
 from src.systems.citizens import get_citizen_status
 from src.systems.npc_system import get_npc, get_npc_info, recruit, dismiss, get_available_npcs
@@ -32,6 +37,7 @@ from src.ui.renderer import (
     show_supply_chains, show_citizens, show_weather, console,
 )
 from src.world.generator import generate_world
+from src.systems.multi_town import init_neighboring_towns
 
 log = get_logger(__name__)
 
@@ -61,6 +67,9 @@ def create_new_game() -> GameState:
         npcs=[n.__dict__ for n in world.npcs],
         buildings=[b.__dict__ for b in world.buildings],
     )
+
+    # Generate neighboring towns
+    init_neighboring_towns(state)
 
     show_world_intro(state, world)
     return state
@@ -239,6 +248,49 @@ def run_game_loop(state: GameState):
                 progress = get_tier_progress(state)
                 unlocked = get_all_unlocked_buildings(state)
                 show_town(state, progress, unlocked)
+
+            case "towns":
+                from src.ui.renderer import show_towns_list
+                show_towns_list(state)
+
+            case "travel":
+                if cmd.args:
+                    town_id = cmd.args[0]
+                    town = travel_to_town(state, town_id)
+                    if town:
+                        console.print(f"[green]Traveled to {town['icon']} {town['name']}.[/green]")
+                        console.print(f"[dim]{town['description']}[/dim]")
+                        # Travel takes a day
+                        from src.systems.tick_system import tick
+                        messages = tick(state)
+                        show_messages(messages)
+                        show_hud(state)
+                    else:
+                        console.print(f"[red]Town '{town_id}' not found.[/red]")
+                else:
+                    console.print("[dim]Usage: travel <town_id>[/dim]")
+                    console.print("[dim]Use 'towns' to see available towns.[/dim]")
+
+            case "arbitrage" | "arb":
+                if cmd.args:
+                    town_id = cmd.args[0]
+                    ops = get_arbitrage_opportunities(state, town_id)
+                    if ops:
+                        from src.ui.renderer import show_arbitrage
+                        show_arbitrage(state, town_id, ops)
+                    else:
+                        console.print(f"[dim]No arbitrage opportunities with {town_id}.[/dim]")
+                else:
+                    # Show all towns
+                    from src.ui.renderer import show_all_arbitrage
+                    show_all_arbitrage(state)
+
+            case "return" | "home":
+                if is_abroad(state):
+                    return_home(state)
+                    console.print("[green]Returned home.[/green]")
+                else:
+                    console.print("[dim]You are already home.[/dim]")
 
             case "choose":
                 if not state.pending_choices:
